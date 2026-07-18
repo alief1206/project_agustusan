@@ -3,7 +3,7 @@ import Home from './pages/Home.jsx'
 import Vote from './pages/Vote.jsx'
 import Admin from './pages/Admin.jsx'
 import AdminResults from './pages/AdminResults.jsx'
-import Register from './pages/Register.jsx'
+import Login from './pages/login.jsx'
 
 function App() {
   return (
@@ -11,9 +11,10 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/vote" element={<Vote />} />
-        <Route path="/daftar" element={<Register />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/results" element={<AdminResults />} />
+        <Route path="/login" element={<Login />} />
+      
       </Routes>
     </BrowserRouter>
   )

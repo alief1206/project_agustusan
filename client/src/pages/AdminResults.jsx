@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
 
@@ -8,7 +9,7 @@ const adminResultsStyles = `
     font-size: 16px;
     line-height: 1.5;
     color: #201a22;
-    background: #fdf3f2;
+    background: #ffffff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -24,7 +25,7 @@ const adminResultsStyles = `
   }
 
   body {
-    background: #f9eef0;
+    background: #ffffff;
   }
 
   #root {
@@ -51,7 +52,7 @@ const adminResultsStyles = `
     background: rgba(255, 255, 255, 0.95);
     border-radius: 30px;
     padding: 1.25rem 1.75rem;
-    box-shadow: 0 24px 80px rgba(70, 17, 36, 0.13);
+    box-shadow: 0 10px 40px rgba(16, 185, 129, 0.08);
     position: relative;
     z-index: 1;
   }
@@ -67,16 +68,16 @@ const adminResultsStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
     background: #ffffff;
-    box-shadow: 0 8px 24px rgba(70, 17, 36, 0.12);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     position: relative;
     overflow: hidden;
   }
 
-  .brand-image {
+  .brand-mark img, .brand-mark svg, .brand-logo img, .brand-logo svg {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -84,18 +85,26 @@ const adminResultsStyles = `
   }
 
   .brand-copy {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     gap: 0.15rem;
+    white-space: nowrap;
   }
 
   .brand-copy strong {
-    font-size: 1rem;
-    letter-spacing: -0.02em;
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #111827;
+    line-height: 1.2;
   }
 
   .brand-copy span {
-    font-size: 0.85rem;
-    color: #6f5f6a;
+    display: block;
+    font-size: 0.9rem;
+    color: #6b7280;
+    line-height: 1.2;
   }
 
   .nav-links {
@@ -106,7 +115,7 @@ const adminResultsStyles = `
   }
 
   .nav-links a {
-    color: #4a3f4f;
+    color: #374151;
     text-decoration: none;
     font-size: 0.95rem;
     font-weight: 700;
@@ -114,14 +123,14 @@ const adminResultsStyles = `
   }
 
   .nav-links a:hover {
-    color: #d30f1a;
+    color: #10b981;
   }
 
   .action-button {
     border: none;
     cursor: pointer;
     border-radius: 999px;
-    background: #d30f1a;
+    background: #10b981;
     color: #fff;
     font-weight: 700;
     padding: 0.9rem 1.6rem;
@@ -130,71 +139,85 @@ const adminResultsStyles = `
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    gap: 0.5rem;
   }
 
   .action-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 18px 32px rgba(211, 15, 26, 0.22);
+    transform: translateY(-2px);
+    background: #059669;
+    box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
   }
 
   .secondary-button,
   .action-button.secondary {
-    border: 2px solid #d30f1a;
+    border: 2px solid #10b981;
     background: #fff;
-    color: #d30f1a;
+    color: #10b981;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.9rem 1.2rem;
   }
 
   .secondary-button:hover,
   .action-button.secondary:hover {
-    background: #fbeaea;
+    background: #f0fdf4;
+    color: #059669;
+    border-color: #059669;
   }
 
-  .admin-results-page {
-    background: #11204f;
+  .topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
   }
 
-  .admin-results-topbar {
-    background: rgba(255, 255, 255, 0.96);
+  .mobile-menu-btn {
+    display: none; 
+    background: #f0fdf4; 
+    border: none; 
+    cursor: pointer; 
+    padding: 0.8rem; 
+    border-radius: 12px; 
+    color: #10b981;
+    transition: background 0.3s;
+  }
+  
+  .mobile-menu-btn:hover {
+    background: #d1fae5;
   }
 
-  .admin-results-topbar .brand-copy strong {
-    color: #191b34;
-  }
-
-  .admin-results-topbar .brand-copy span {
-    color: #524d62;
-  }
-
-  .admin-results-topbar .nav-links {
+  .admin-topbar .nav-links {
     gap: 1rem;
   }
 
-  .admin-results-topbar .nav-links a {
-    color: #1f2042;
-  }
-
-  .admin-results-topbar .nav-links a.active-nav,
-  .admin-results-topbar .nav-links a:hover {
-    background: #11204f;
+  .admin-nav a.active-nav {
+    background: #10b981;
     color: #fff;
     border-radius: 999px;
     padding: 0.8rem 1rem;
+  }
+  
+  .admin-nav a.active-nav:hover {
+    background: #059669;
+    color: #fff;
   }
 
   .admin-results-hero {
     padding: 2rem 2rem 1.5rem;
     text-align: center;
     margin-top: 2rem;
-    background: rgba(255, 255, 255, 0.97);
+    background: #ffffff;
     border-radius: 34px;
-    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.18);
+    box-shadow: 0 22px 55px rgba(0, 0, 0, 0.05);
   }
 
   .admin-results-hero .subtitle {
     display: inline-flex;
     padding: 0.65rem 1rem;
     border-radius: 999px;
-    background: #d30f1a;
+    background: #10b981;
     color: #fff;
     font-weight: 800;
     letter-spacing: 0.12em;
@@ -207,11 +230,7 @@ const adminResultsStyles = `
     max-width: 900px;
     font-size: clamp(2.8rem, 4vw, 4rem);
     line-height: 1.02;
-    color: #241721;
-  }
-
-  .hero-actions {
-    margin-top: 1.5rem;
+    color: #111827;
   }
 
   .results-grid {
@@ -222,11 +241,11 @@ const adminResultsStyles = `
   }
 
   .result-card {
-    background: rgba(255, 255, 255, 0.97);
+    background: #ffffff;
     border-radius: 32px;
     padding: 1.4rem;
-    box-shadow: 0 22px 65px rgba(0, 0, 0, 0.12);
-    border: 1px solid rgba(211, 15, 26, 0.12);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f3f4f6;
   }
 
   .result-card-header {
@@ -234,7 +253,7 @@ const adminResultsStyles = `
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    background: #d30f1a;
+    background: #10b981;
     color: #fff;
     padding: 1rem 1.2rem;
     border-radius: 24px;
@@ -259,7 +278,7 @@ const adminResultsStyles = `
     align-items: center;
     gap: 0.75rem;
     font-weight: 700;
-    color: #241721;
+    color: #111827;
   }
 
   .row-label .rank {
@@ -269,8 +288,8 @@ const adminResultsStyles = `
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: #f5e2e2;
-    color: #d30f1a;
+    background: #d1fae5;
+    color: #047857;
     font-weight: 800;
   }
 
@@ -279,21 +298,21 @@ const adminResultsStyles = `
     justify-content: space-between;
     gap: 1rem;
     font-size: 0.95rem;
-    color: #574751;
+    color: #6b7280;
   }
 
   .progress-bar {
     width: 100%;
     height: 0.85rem;
     border-radius: 999px;
-    background: #fde6e7;
+    background: #e5e7eb;
     overflow: hidden;
   }
 
   .progress-fill {
     height: 100%;
     border-radius: 999px;
-    background: #d30f1a;
+    background: #10b981;
   }
 
   .results-actions {
@@ -307,6 +326,9 @@ const adminResultsStyles = `
   .results-actions .action-button,
   .results-actions .secondary-button {
     min-width: 180px;
+    padding: 1.1rem 2.5rem;
+    font-size: 1rem;
+    letter-spacing: 0.08em;
   }
 
   @media (max-width: 1024px) {
@@ -315,18 +337,47 @@ const adminResultsStyles = `
     }
 
     .topbar {
-      flex-direction: column;
-      align-items: stretch;
-      padding: 1rem 1rem;
-    }
-
-    .nav-links {
-      justify-content: center;
-      gap: 1rem;
+      padding: 1rem 1.25rem;
+      border-radius: 24px;
     }
 
     .results-grid {
       grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 820px) {
+    .mobile-menu-btn {
+      display: block; 
+    }
+
+    .nav-links {
+      display: none; 
+      position: absolute;
+      top: calc(100% + 0.5rem); 
+      right: 1.25rem; 
+      width: 240px;
+      background: #ffffff;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0.5rem;
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15); 
+      border: 1px solid #f3f4f6;
+      z-index: 100;
+    }
+
+    .nav-links.open {
+      display: flex; 
+    }
+
+    .nav-links a {
+      text-align: right; 
+      display: block;
+      width: 100%;
+      padding: 0.5rem !important;
+      border-radius: 8px !important;
     }
   }
 
@@ -405,12 +456,14 @@ function ResultRow({ item, rank }) {
 }
 
 function AdminResults() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
   return (
     <>
       <style>{adminResultsStyles}</style>
-      <div className="dashboard admin-page admin-results-page">
+      <div className="dashboard admin-page">
       <div className="page-frame">
-        <header className="topbar admin-topbar admin-results-topbar">
+        <header className="topbar admin-topbar">
           <div className="brand">
             <div className="brand-mark">
               <BrandLogo className="brand-image" />
@@ -421,24 +474,36 @@ function AdminResults() {
             </div>
           </div>
 
-          <nav className="nav-links admin-nav" aria-label="Admin navigation">
-            <Link to="/">BERANDA</Link>
-            <Link to="/admin">KELOLA KANDIDAT</Link>
-            <Link to="/admin">KELOLA KATEGORI</Link>
-            <Link to="/admin/results" className="active-nav">STATISTIK</Link>
-            <Link to="/admin">PENGGUNA</Link>
-            <Link to="/admin">PENGATURAN</Link>
+          <nav className={`nav-links admin-nav ${isMenuOpen ? 'open' : ''}`} aria-label="Admin navigation">
+            <Link to="/" onClick={() => setIsMenuOpen(false)}>BERANDA</Link>
+            <Link to="/admin" onClick={() => setIsMenuOpen(false)}>BERANDA ADMIN</Link>
+            <Link to="/admin/results" className="active-nav" onClick={() => setIsMenuOpen(false)}>STATISTIK</Link>
           </nav>
 
-          <Link to="/" className="action-button">KEMBALI</Link>
+          <div className="topbar-actions">
+            <button type="button" className="action-button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Refresh
+            </button>
+            <Link to="/" className="action-button">KEMBALI</Link>
+            <button 
+              className="mobile-menu-btn" 
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle navigation"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                <path d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 12h16M4 6h16M4 18h16"} />
+              </svg>
+            </button>
+          </div>
         </header>
 
         <section className="admin-results-hero">
           <span className="subtitle">DASBOR</span>
           <h1>HASIL POLLING BERDASARKAN KATEGORI</h1>
-          <div className="hero-actions">
-            <button type="button" className="secondary-button">Refresh Data</button>
-          </div>
         </section>
 
         <div className="results-grid">
@@ -457,7 +522,6 @@ function AdminResults() {
         </div>
 
         <div className="results-actions">
-          <button type="button" className="secondary-button">Refresh Data</button>
           <button type="button" className="action-button">Cetak Laporan</button>
         </div>
       </div>
