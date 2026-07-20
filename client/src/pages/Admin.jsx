@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
+import { api, clearAdminToken, getAdminToken } from '../lib/api'
 
 const adminStyles = `
   :root {
@@ -608,6 +609,21 @@ const adminStyles = `
   }
   .btn-submit.danger:hover { background: #b91c1c; }
 
+  .admin-message {
+    margin-top: 1rem;
+    padding: 1rem 1.2rem;
+    border-radius: 18px;
+    background: #f0fdf4;
+    color: #047857;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .admin-message.error {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
   @media (max-width: 1024px) {
     .page-frame {
       padding: 1.5rem 1rem 2.5rem;
@@ -687,50 +703,91 @@ const adminStyles = `
   }
 `
 
-const stats = [
-  { label: 'TOTAL KANDIDAT', value: '57', detail: '45 RT/RW, 12 Posyandu' },
-  { label: 'TOTAL KATEGORI', value: '2 Kategori Utama', detail: '5 Sub-Kategori' },
-  { label: 'TOTAL SUARA MASUK', value: '12,500' },
-  { label: 'PENGGUNA TERDAFTAR', value: '5,000' },
-]
-
-const actions = [
-  { id: 1, name: 'BUDI SANTOSO', type: 'EDIT' },
-  { id: 2, name: 'SITI RAHMANIAH', type: 'HAPUS' },
-  { id: 3, name: 'IMAM HARIYADI', type: 'LIHAT PROFIL' },
-]
-
-const recentCandidates = [
-  {
-    id: 1,
-    name: 'BUDI SANTOSO',
-    category: 'RT/RW',
-    region: 'Welaran',
-    votes: '1,500 Suara',
-    status: 'Aktif',
-    role: 'Ketua RW. Welaran/01',
-  },
-  {
-    id: 2,
-    name: 'SITI RAHMANIAH',
-    category: 'Kader Posyandu',
-    region: 'Kemerdekaan',
-    votes: '800 Suara',
-    status: 'Aktif',
-    role: 'Posyandu: Apel',
-  },
-]
+const formatStatus = (status) => (status === 'ACTIVE' ? 'Aktif' : 'Tidak Aktif')
+const getInitials = (name = '') => name.split(' ').map((part) => part[0]).join('').slice(0, 3)
 
 function Admin() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalType, setModalType] = useState(null) // 'candidate' or 'category'
+  const [modalType, setModalType] = useState(null)
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
   const [itemToDelete, setItemToDelete] = useState(null)
   const [candidateToEdit, setCandidateToEdit] = useState(null)
+  const [categoryToEdit, setCategoryToEdit] = useState(null)
+  const [categories, setCategories] = useState([])
+  const [candidates, setCandidates] = useState([])
+  const [dashboard, setDashboard] = useState(null)
+  const [searchTerm, setSearchTerm] = useState('')
+  const [categoryFilter, setCategoryFilter] = useState('')
+  const [message, setMessage] = useState('')
+  const [messageType, setMessageType] = useState('success')
+  const [isSaving, setIsSaving] = useState(false)
+
+  const isLoggedIn = Boolean(getAdminToken())
+
+  const showMessage = (text, type = 'success') => {
+    setMessage(text)
+    setMessageType(type)
+  }
+
+  const loadAdminData = async () => {
+    const [dashboardData, categoryData, candidateData] = await Promise.all([
+      api.getDashboard(),
+      api.getCategories(),
+      api.getCandidates(),
+    ])
+    setDashboard(dashboardData)
+    setCategories(categoryData)
+    setCandidates(candidateData)
+  }
+
+  useEffect(() => {
+    if (!isLoggedIn) return
+
+    loadAdminData().catch((error) => showMessage(error.message, 'error'))
+  }, [isLoggedIn])
+
+  const stats = useMemo(() => {
+    const summary = dashboard?.summary || {
+      participants: 0,
+      totalVotes: 0,
+      activeCategories: 0,
+      totalCandidates: 0,
+    }
+
+    return [
+      { label: 'TOTAL KANDIDAT', value: summary.totalCandidates.toLocaleString('id-ID') },
+      { label: 'TOTAL KATEGORI AKTIF', value: summary.activeCategories.toLocaleString('id-ID') },
+      { label: 'TOTAL SUARA MASUK', value: summary.totalVotes.toLocaleString('id-ID') },
+      { label: 'PESERTA POLLING', value: summary.participants.toLocaleString('id-ID') },
+    ]
+  }, [dashboard])
+
+  const topCandidates = useMemo(() => {
+    return (dashboard?.topByCategory || []).flatMap((category) =>
+      category.candidates.map((candidate, index) => ({
+        ...candidate,
+        rank: index + 1,
+        categoryName: category.name,
+      })),
+    )
+  }, [dashboard])
+
+  const filteredCandidates = useMemo(() => {
+    const keyword = searchTerm.trim().toLowerCase()
+
+    return candidates.filter((candidate) => {
+      const matchesKeyword = !keyword || candidate.name.toLowerCase().includes(keyword)
+      const matchesCategory = !categoryFilter || candidate.categoryId === categoryFilter
+
+      return matchesKeyword && matchesCategory
+    })
+  }, [candidates, categoryFilter, searchTerm])
 
   const openModal = (type) => {
     setModalType(type)
+    setCandidateToEdit(null)
+    setCategoryToEdit(null)
     setIsModalOpen(true)
   }
 
@@ -738,6 +795,7 @@ function Admin() {
     setIsModalOpen(false)
     setModalType(null)
     setCandidateToEdit(null)
+    setCategoryToEdit(null)
   }
 
   const openEditModal = (candidate) => {
@@ -746,19 +804,62 @@ function Admin() {
     setIsModalOpen(true)
   }
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    if (modalType === 'editCandidate') {
-      alert(`Data kandidat "${candidateToEdit.name}" berhasil diperbarui! (Ini hanya simulasi)`)
-    } else {
-      // Simulasi pengiriman data
-      alert(`Data baru untuk '${modalType}' berhasil ditambahkan! (Ini hanya simulasi)`)
-    }
-    closeModal()
+  const openEditCategoryModal = (category) => {
+    setModalType('editCategory')
+    setCategoryToEdit(category)
+    setIsModalOpen(true)
   }
 
-  const openConfirmModal = (item) => {
-    setItemToDelete(item)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    setIsSaving(true)
+
+    try {
+      if (modalType === 'candidate' || modalType === 'editCandidate') {
+        const body = {
+          name: formData.get('name'),
+          role: formData.get('role'),
+          region: formData.get('region'),
+          categoryId: formData.get('categoryId'),
+          status: formData.get('status') || 'ACTIVE',
+        }
+
+        if (modalType === 'editCandidate') {
+          await api.updateCandidate(candidateToEdit.id, body)
+          showMessage(`Data kandidat "${candidateToEdit.name}" berhasil diperbarui.`)
+        } else {
+          await api.createCandidate(body)
+          showMessage('Kandidat baru berhasil ditambahkan.')
+        }
+      }
+
+      if (modalType === 'category' || modalType === 'editCategory') {
+        const body = {
+          name: formData.get('name'),
+          description: formData.get('description'),
+        }
+
+        if (modalType === 'editCategory') {
+          await api.updateCategory(categoryToEdit.id, body)
+          showMessage(`Kategori "${categoryToEdit.name}" berhasil diperbarui.`)
+        } else {
+          await api.createCategory(body)
+          showMessage('Kategori baru berhasil ditambahkan.')
+        }
+      }
+
+      closeModal()
+      await loadAdminData()
+    } catch (error) {
+      showMessage(error.message, 'error')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const openConfirmModal = (item, type = 'candidate') => {
+    setItemToDelete({ ...item, deleteType: type })
     setIsConfirmModalOpen(true)
   }
 
@@ -767,11 +868,44 @@ function Admin() {
     setItemToDelete(null)
   }
 
-  const handleDelete = () => {
-    if (itemToDelete) {
-      alert(`Item "${itemToDelete.name}" telah dihapus! (Ini hanya simulasi)`)
+  const handleDelete = async () => {
+    if (!itemToDelete) return
+
+    try {
+      if (itemToDelete.deleteType === 'category') {
+        await api.deleteCategory(itemToDelete.id)
+      } else {
+        await api.deleteCandidate(itemToDelete.id)
+      }
+      showMessage(`"${itemToDelete.name}" berhasil dihapus.`)
       closeConfirmModal()
+      await loadAdminData()
+    } catch (error) {
+      showMessage(error.message, 'error')
     }
+  }
+
+  const handleLogout = () => {
+    clearAdminToken()
+    window.location.href = '/login'
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <>
+        <style>{adminStyles}</style>
+        <div className="dashboard admin-page">
+          <div className="page-frame">
+            <section className="admin-hero">
+              <h1>AKSES <span>ADMIN</span></h1>
+              <p>Silakan masuk terlebih dahulu untuk memantau dan mengubah data polling.</p>
+              <p className="admin-message error">Token admin belum tersedia.</p>
+              <Link to="/login" className="action-button">MASUK ADMIN</Link>
+            </section>
+          </div>
+        </div>
+      </>
+    )
   }
 
   return (
@@ -796,6 +930,8 @@ function Admin() {
           </nav>
 
           <div className="topbar-actions">
+            <button type="button" className="action-button secondary" onClick={loadAdminData}>REFRESH</button>
+            <button type="button" className="action-button secondary" onClick={handleLogout}>KELUAR</button>
             <Link to="/" className="action-button">KEMBALI</Link>
             <button 
               className="mobile-menu-btn" 
@@ -814,6 +950,7 @@ function Admin() {
             DASBOR ADMIN: <span>KELOLA PEMUNGUTAN SUARA 'POLLING MERDEKA 79'</span>
           </h1>
           <p>Kelola kandidat, kategori, statistik, dan pengguna secara cepat dan akurat di Polling Merdeka 79.</p>
+          {message ? <p className={`admin-message ${messageType === 'error' ? 'error' : ''}`}>{message}</p> : null}
         </section>
 
         <div className="admin-content">
@@ -832,12 +969,17 @@ function Admin() {
               <div className="admin-table-header">
                 <h2>DAFTAR KANDIDAT TERBARU</h2>
                 <div className="admin-filters">
-                  <input type="search" placeholder="Cari kandidat..." />
-                  <select>
+                  <input
+                    type="search"
+                    placeholder="Cari kandidat..."
+                    value={searchTerm}
+                    onChange={(event) => setSearchTerm(event.target.value)}
+                  />
+                  <select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}>
                     <option value="">Semua Kategori</option>
-                    <option value="rt">Kandidat RT</option>
-                    <option value="rw">Kandidat RW</option>
-                    <option value="posyandu">Kader Posyandu</option>
+                    {categories.map((category) => (
+                      <option key={category.id} value={category.id}>{category.name}</option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -853,24 +995,29 @@ function Admin() {
                   </tr>
                 </thead>
                 <tbody>
-                  {recentCandidates.map((candidate) => (
+                  {filteredCandidates.map((candidate) => (
                     <tr key={candidate.id}>
                       <td>
                         <strong>{candidate.name}</strong>
                         <span>{candidate.role}</span>
                       </td>
-                      <td>{candidate.category}</td>
-                      <td>{candidate.region}</td>
-                      <td>{candidate.votes}</td>
-                      <td className={candidate.status === 'Aktif' ? 'status-active' : 'status-inactive'}>
-                        {candidate.status}
+                      <td>{candidate.category?.name}</td>
+                      <td>{candidate.region || '-'}</td>
+                      <td>{candidate._count?.votes?.toLocaleString('id-ID') || 0} Suara</td>
+                      <td className={candidate.status === 'ACTIVE' ? 'status-active' : 'status-inactive'}>
+                        {formatStatus(candidate.status)}
                       </td>
                       <td>
                         <button type="button" onClick={() => openEditModal(candidate)}>EDIT</button>
-                        <button type="button" className="danger" onClick={() => openConfirmModal(candidate)}>HAPUS</button>
+                        <button type="button" className="danger" onClick={() => openConfirmModal(candidate, 'candidate')}>HAPUS</button>
                       </td>
                     </tr>
                   ))}
+                  {filteredCandidates.length === 0 ? (
+                    <tr>
+                      <td colSpan="6">Belum ada kandidat yang cocok.</td>
+                    </tr>
+                  ) : null}
                 </tbody>
               </table>
             </div>
@@ -878,26 +1025,36 @@ function Admin() {
 
           <aside className="admin-sidebar" id="pengguna">
             <div className="admin-sidebar-header">
-              <h3>Tindakan Cepat</h3>
+              <h3>3 Besar Setiap Kategori</h3>
             </div>
             <div className="admin-quick-list">
-              {actions.map((action) => (
-                <div key={action.id} className="quick-card">
+              {topCandidates.map((candidate) => (
+                <div key={`${candidate.categoryName}-${candidate.id}`} className="quick-card">
                   <div className="quick-avatar" aria-hidden="true">
-                    {action.name.split(' ').map((part) => part[0]).join('')}
+                    {candidate.rank}
                   </div>
                   <div>
-                    <p>{action.name}</p>
-                    <button
-                      type="button"
-                      className={action.type === 'HAPUS' ? 'danger' : undefined}
-                      onClick={() => {
-                        if (action.type === 'HAPUS') openConfirmModal(action)
-                        else if (action.type === 'EDIT') openEditModal(action)
-                        else alert(`Tindakan '${action.type}' untuk ${action.name}`);
-                      }}>
-                      [{action.type}]
-                    </button>
+                    <p>{candidate.name}</p>
+                    <span>{candidate.categoryName} - {candidate.votes.toLocaleString('id-ID')} suara</span>
+                  </div>
+                </div>
+              ))}
+              {topCandidates.length === 0 ? <p>Belum ada suara yang masuk.</p> : null}
+            </div>
+
+            <div className="admin-sidebar-header">
+              <h3>Kelola Kategori</h3>
+            </div>
+            <div className="admin-quick-list">
+              {categories.map((category) => (
+                <div key={category.id} className="quick-card">
+                  <div className="quick-avatar" aria-hidden="true">
+                    {getInitials(category.name)}
+                  </div>
+                  <div>
+                    <p>{category.name}</p>
+                    <button type="button" onClick={() => openEditCategoryModal(category)}>[EDIT]</button>
+                    <button type="button" className="danger" onClick={() => openConfirmModal(category, 'category')}>[HAPUS]</button>
                   </div>
                 </div>
               ))}
@@ -930,11 +1087,13 @@ function Admin() {
                 <h2>
                   {modalType === 'editCandidate' && 'Edit Kandidat'}
                   {modalType === 'candidate' && 'Tambah Kandidat Baru'}
+                  {modalType === 'editCategory' && 'Edit Kategori'}
                   {modalType === 'category' && 'Tambah Kategori Baru'}
                 </h2>
                 <p>
                   {modalType === 'editCandidate' && `Ubah detail untuk kandidat ${candidateToEdit?.name}.`}
                   {modalType === 'candidate' && 'Isi detail kandidat untuk menambahkannya ke dalam daftar polling.'}
+                  {modalType === 'editCategory' && `Ubah detail kategori ${categoryToEdit?.name}.`}
                   {modalType === 'category' && 'Buat kategori polling baru untuk diikuti oleh para pemilih.'}
                 </p>
               </div>
@@ -946,6 +1105,7 @@ function Admin() {
                       <label>Nama Lengkap Kandidat</label>
                       <input 
                         type="text" 
+                        name="name"
                         className="modal-input" 
                         placeholder="Contoh: Budi Santoso" 
                         defaultValue={candidateToEdit?.name || ''}
@@ -956,6 +1116,7 @@ function Admin() {
                       <label>Jabatan/Peran</label>
                       <input 
                         type="text" 
+                        name="role"
                         className="modal-input" 
                         placeholder="Contoh: Ketua RT. 01/01" 
                         defaultValue={candidateToEdit?.role || ''}
@@ -964,25 +1125,55 @@ function Admin() {
                     </div>
                     <div>
                       <label>Kategori</label>
-                      <select className="modal-input" defaultValue={candidateToEdit ? (candidateToEdit.category === 'RT/RW' ? 'rt' : 'posyandu') : ''} required>
+                      <select name="categoryId" className="modal-input" defaultValue={candidateToEdit?.categoryId || ''} required>
                         <option value="">Pilih Kategori</option>
-                        <option value="rt">Kandidat RT Terfavorit</option>
-                        <option value="rw">Kandidat RW Terfavorit</option>
-                        <option value="posyandu">Kader Posyandu Terfavorit</option> 
+                        {categories.map((category) => (
+                          <option key={category.id} value={category.id}>{category.name}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label>Wilayah</label>
+                      <input
+                        type="text"
+                        name="region"
+                        className="modal-input"
+                        placeholder="Contoh: Welaran"
+                        defaultValue={candidateToEdit?.region || ''}
+                      />
+                    </div>
+                    <div>
+                      <label>Status</label>
+                      <select name="status" className="modal-input" defaultValue={candidateToEdit?.status || 'ACTIVE'} required>
+                        <option value="ACTIVE">Aktif</option>
+                        <option value="INACTIVE">Tidak Aktif</option>
                       </select>
                     </div>
                   </>
                 )}
 
-                {modalType === 'category' && (
+                {(modalType === 'category' || modalType === 'editCategory') && (
                   <>
                     <div>
                       <label>Judul Kategori</label>
-                      <input type="text" className="modal-input" placeholder="Contoh: LOMBA TRADISIONAL TERFAVORIT" required />
+                      <input
+                        type="text"
+                        name="name"
+                        className="modal-input"
+                        placeholder="Contoh: LOMBA TRADISIONAL TERFAVORIT"
+                        defaultValue={categoryToEdit?.name || ''}
+                        required
+                      />
                     </div>
                     <div>
                       <label>Deskripsi Singkat</label>
-                      <textarea className="modal-input" rows="3" placeholder="Jelaskan tentang kategori ini" required />
+                      <textarea
+                        name="description"
+                        className="modal-input"
+                        rows="3"
+                        placeholder="Jelaskan tentang kategori ini"
+                        defaultValue={categoryToEdit?.description || ''}
+                      />
                     </div>
                   </>
                 )}
@@ -992,8 +1183,8 @@ function Admin() {
                 <button type="button" className="btn-cancel" onClick={closeModal}>
                   Batal
                 </button>
-                <button type="submit" className="btn-submit">
-                  Simpan
+                <button type="submit" className="btn-submit" disabled={isSaving}>
+                  {isSaving ? 'Menyimpan...' : 'Simpan'}
                 </button>
               </div>
             </form>

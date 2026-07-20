@@ -1,5 +1,7 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
+import { api, setAdminToken } from '../lib/api'
 
 const loginStyles = `
   :root {
@@ -121,6 +123,15 @@ const loginStyles = `
   }
   .login-submit:hover { background: #059669; }
 
+  .login-message {
+    padding: 0.9rem 1rem;
+    border-radius: 16px;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-weight: 700;
+    text-align: center;
+  }
+
   .social-login { margin-top: 2rem; }
   .social-icons { display: flex; justify-content: center; gap: 1rem; margin-top: 1rem; }
   .social-btn { width: 45px; height: 45px; border-radius: 12px; border: 1px solid #e5e7eb; background: #fff; cursor: pointer; }
@@ -144,6 +155,31 @@ const loginStyles = `
 `
 
 function Login() {
+  const navigate = useNavigate()
+  const [message, setMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    const formData = new FormData(event.currentTarget)
+
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      const data = await api.login({
+        email: formData.get('email'),
+        password: formData.get('password'),
+      })
+      setAdminToken(data.token)
+      navigate('/admin')
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
   return (
     <>
       <style>{loginStyles}</style>
@@ -172,22 +208,25 @@ function Login() {
               <h1>MASUK SEKARANG</h1>
               <p className="slogan-gold">"BERSAMA MEMBANGUN LINGKUNGAN MAJU DAN SEJAHTERA"</p>
 
-              <form className="login-form">
+              <form className="login-form" onSubmit={handleLogin}>
+                {message ? <p className="login-message">{message}</p> : null}
                 <label className="field-label">
                   Username / Email / No. HP
                   <div className="input-pill">
-                    <input type="text" placeholder="Email" />
+                    <input type="text" name="email" placeholder="paklurah" required />
                   </div>
                 </label>
 
                 <label className="field-label">
                   Kata Sandi
                   <div className="input-pill">
-                    <input type="password" placeholder="••••••••" />
+                    <input type="password" name="password" placeholder="••••••••" required />
                   </div>
                 </label>
 
-                <button type="submit" className="login-submit">MASUK</button>
+                <button type="submit" className="login-submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'MEMERIKSA...' : 'MASUK'}
+                </button>
               </form>
 
               <div className="social-login">

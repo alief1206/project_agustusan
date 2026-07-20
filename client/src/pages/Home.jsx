@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
 import heroBackground from '../assets/background.PNG'
+import { api } from '../lib/api'
 
 
 const homeStyles = `
@@ -615,26 +616,32 @@ function CategoryIcon({ type }) {
   )
 }
 
-const categories = [
-  {
-    id: 'rt',
-    title: '1. KATEGORI RT TERFAVORIT',
-    description: 'Pilih RT paling kompak dan partisipatif.',
-  },
-  {
-    id: 'rw',
-    title: '2. KATEGORI RW TERFAVORIT',
-    description: 'Vote RW dengan pengelolaan terbaik dan program inovatif.',
-  },
-  {
-    id: 'posyandu',
-    title: '3. KATEGORI KADER POSYANDU TERFAVORIT',
-    description: 'Pilih kader Posyandu paling berdedikasi dan inspiratif.',
-  },
-]
+const defaultCategoryDescriptions = {
+  rt: 'Pilih RT paling kompak dan partisipatif.',
+  rw: 'Vote RW dengan pengelolaan terbaik dan program inovatif.',
+  posyandu: 'Pilih kader Posyandu paling berdedikasi dan inspiratif.',
+}
 
 function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [categories, setCategories] = useState([])
+  const [summary, setSummary] = useState({
+    participants: 0,
+    totalVotes: 0,
+    activeCategories: 0,
+    totalCandidates: 0,
+  })
+
+  useEffect(() => {
+    api.getDashboard()
+      .then((data) => {
+        setCategories(data.categories)
+        setSummary(data.summary)
+      })
+      .catch(() => {
+        setCategories([])
+      })
+  }, [])
 
   return (
     <>
@@ -695,14 +702,14 @@ function Home() {
         <section className="popular-section" id="categories">
           <h2>KATEGORI POLLING POPULER</h2>
           <div className="category-grid">
-            {categories.map((category) => (
+            {categories.map((category, index) => (
               <article className="category-card" key={category.id}>
                 <div className="category-icon">
-                  <CategoryIcon type={category.id} />
+                  <CategoryIcon type={category.slug} />
                 </div>
                 <div className="category-content">
-                  <h3>{category.title}</h3>
-                  <p>{category.description}</p>
+                  <h3>{index + 1}. {category.name}</h3>
+                  <p>{category.description || defaultCategoryDescriptions[category.slug] || 'Kategori polling yang sedang aktif.'}</p>
                 </div>
                 <Link to="/vote" className="category-action">VOTE</Link>
               </article>
@@ -712,16 +719,20 @@ function Home() {
 
         <section className="stats-section">
           <div className="stat-card">
-            <span>Votes Cast:</span>
-            <strong>145,230</strong>
+            <span>Peserta Polling</span>
+            <strong>{summary.participants.toLocaleString('id-ID')}</strong>
           </div>
           <div className="stat-card">
-            <span>Polls Active:</span>
-            <strong>45</strong>
+            <span>Kategori Aktif</span>
+            <strong>{summary.activeCategories.toLocaleString('id-ID')}</strong>
           </div>
           <div className="stat-card">
-            <span>Participants:</span>
-            <strong>12,890</strong>
+            <span>Jumlah Kandidat</span>
+            <strong>{summary.totalCandidates.toLocaleString('id-ID')}</strong>
+          </div>
+          <div className="stat-card">
+            <span>Total Vote</span>
+            <strong>{summary.totalVotes.toLocaleString('id-ID')}</strong>
           </div>
         </section>
 

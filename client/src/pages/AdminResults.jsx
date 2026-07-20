@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
+import { api } from '../lib/api'
 
 const adminResultsStyles = `
   :root {
@@ -396,56 +397,15 @@ const adminResultsStyles = `
   }
 `
 
-const categories = [
-  {
-    title: 'LOMBA TRADISIONAL TERFAVORIT',
-    items: [
-      { label: 'Panjat Pinang', votes: '3,500', percent: 40 },
-      { label: 'Tarik Tambang', votes: '2,800', percent: 32 },
-      { label: 'Lari Karung', votes: '1,200', percent: 14 },
-      { label: 'Makan Kerupuk', votes: '700', percent: 8 },
-      { label: 'Bakiak', votes: '500', percent: 6 },
-    ],
-  },
-  {
-    title: 'MAKANAN KHAS SYUKURAN TERBAIK',
-    items: [
-      { label: 'Nasi Tumpeng', votes: '4,100', percent: 45 },
-      { label: 'Rujak Cuka', votes: '1,900', percent: 21 },
-      { label: 'Ketan Kuning', votes: '1,100', percent: 12 },
-      { label: 'Bubur Sumsum', votes: '1,000', percent: 11 },
-      { label: 'Opak Singkong', votes: '900', percent: 10 },
-    ],
-  },
-  {
-    title: 'DEKORASI LINGKUNGAN TERKREATIF',
-    items: [
-      { label: 'Gapura Utama', votes: '3,200', percent: 38 },
-      { label: 'Pojok Bendera', votes: '2,100', percent: 25 },
-      { label: 'Taman Merdeka', votes: '1,500', percent: 18 },
-      { label: 'Lampu Hias Jalan', votes: '1,000', percent: 12 },
-      { label: 'Pagar Putih', votes: '600', percent: 7 },
-    ],
-  },
-  {
-    title: 'KADER POSYANDU TERDEDIKASI',
-    items: [
-      { label: 'Siti Rahmaniah', votes: '800', percent: 55 },
-      { label: 'Muidayanti', votes: '436', percent: 30 },
-      { label: 'Siti Masitah', votes: '218', percent: 15 },
-    ],
-  },
-]
-
 function ResultRow({ item, rank }) {
   return (
     <div className="result-row">
       <div className="row-label">
         <span className="rank">{rank}.</span>
-        <span>{item.label}</span>
+        <span>{item.name}</span>
       </div>
       <div className="row-meta">
-        <span>{item.votes} votes</span>
+        <span>{item.votes.toLocaleString('id-ID')} votes</span>
         <span>({item.percent}%)</span>
       </div>
       <div className="progress-bar">
@@ -457,6 +417,16 @@ function ResultRow({ item, rank }) {
 
 function AdminResults() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [categories, setCategories] = useState([])
+
+  const loadResults = async () => {
+    const data = await api.getResults()
+    setCategories(data)
+  }
+
+  useEffect(() => {
+    loadResults().catch(() => setCategories([]))
+  }, [])
 
   return (
     <>
@@ -481,7 +451,7 @@ function AdminResults() {
           </nav>
 
           <div className="topbar-actions">
-            <button type="button" className="action-button">
+            <button type="button" className="action-button" onClick={loadResults}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -508,13 +478,14 @@ function AdminResults() {
 
         <div className="results-grid">
           {categories.map((category) => (
-            <section key={category.title} className="result-card">
+            <section key={category.id} className="result-card">
               <div className="result-card-header">
-                <span>{category.title}</span>
+                <span>{category.name}</span>
+                <span>{category.totalVotes.toLocaleString('id-ID')} Suara</span>
               </div>
               <div className="result-list">
-                {category.items.map((item, index) => (
-                  <ResultRow key={item.label} item={item} rank={index + 1} />
+                {category.candidates.map((item, index) => (
+                  <ResultRow key={item.id} item={item} rank={index + 1} />
                 ))}
               </div>
             </section>

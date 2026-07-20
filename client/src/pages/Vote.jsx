@@ -1,6 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
+import { api } from '../lib/api'
 
 const voteStyles = `
   :root {
@@ -214,6 +215,22 @@ const voteStyles = `
     font-size: 1.1rem;
     max-width: 660px;
     line-height: 1.6;
+  }
+
+  .state-message {
+    margin: 2rem auto 0;
+    max-width: 720px;
+    padding: 1rem 1.25rem;
+    border-radius: 18px;
+    background: #f0fdf4;
+    color: #047857;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .state-message.error {
+    background: #fee2e2;
+    color: #b91c1c;
   }
 
   .quick-jump {
@@ -588,28 +605,6 @@ const voteStyles = `
   }
 `
 
-const rtCandidates = [
-  { id: 2, name: 'EKO RETNANI', role: 'Ketua RT. 01/01 Welaran' },
-  { id: 3, name: 'NANANG ARIYANTO', role: 'Ketua RT. 02/01 Welaran' },
-  { id: 4, name: 'RESTU WAHYU PRASTIYO', role: 'Ketua RT. 06/01 Welaran' },
-  { id: 8, name: 'IMAM HARIYADI', role: 'Ketua RT. 02/02 Welaran' },
-]
-
-const rwCandidates = [
-  { id: 1, name: 'BUDI SANTOSO', role: 'Ketua RW. Welaran/01' },
-  { id: 6, name: 'SUTRISNO', role: 'Ketua RW. Welaran/02' },
-]
-
-const posyanduCandidates = [
-  { id: 1, name: 'SITI RAHMANIAH', role: 'POSYANDU: APEL KADER' },
-  { id: 2, name: 'MUIDYANTI', role: 'POSYANDU: APEL KADER' },
-  { id: 3, name: 'MASITAH', role: 'POSYANDU: APEL KADER' },
-  { id: 4, name: 'SULIS EKAWASIH', role: 'POSYANDU: APEL KADER' },
-  { id: 5, name: 'SINTA KAROHMAH', role: 'POSYANDU: APEL KADER' },
-  { id: 6, name: 'DIANA DWI SETYOWATI', role: 'POSYANDU: JERUK KADER' },
-]
-
-// Menambahkan prop 'onVote' agar bisa mengirim data kandidat ke modal
 function CandidateCard({ candidate, onVote }) {
   return (
     <article className="candidate-card">
@@ -631,24 +626,57 @@ function CandidateCard({ candidate, onVote }) {
 
 function Vote() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
-  
-  // State untuk menangani modal konfirmasi data pemilih
+  const [categories, setCategories] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [message, setMessage] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedCandidate, setSelectedCandidate] = useState(null)
 
-  // Fungsi saat tombol VOTE di kartu diklik
+  const loadCategories = async () => {
+    try {
+      const data = await api.getCategories()
+      setCategories(data)
+      setMessage('')
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    loadCategories()
+  }, [])
+
   const handleVoteClick = (candidate) => {
     setSelectedCandidate(candidate)
+    setMessage('')
     setIsModalOpen(true)
   }
 
-  // Fungsi simulasi saat formulir data diri disubmit
-  const handleSubmitVote = (e) => {
+  const handleSubmitVote = async (e) => {
     e.preventDefault()
-    // Anda bisa menambahkan logika fetch/API di sini nantinya
-    alert(`Terima kasih! Suara Anda untuk ${selectedCandidate.name} telah berhasil dicatat.`)
-    setIsModalOpen(false)
-    setSelectedCandidate(null)
+    const formData = new FormData(e.currentTarget)
+
+    setIsSubmitting(true)
+    setMessage('')
+
+    try {
+      await api.createVote({
+        candidateId: selectedCandidate.id,
+        voterName: formData.get('voterName'),
+        voterAddress: formData.get('voterAddress'),
+      })
+      setMessage(`Terima kasih! Suara Anda untuk ${selectedCandidate.name} telah berhasil dicatat.`)
+      setIsModalOpen(false)
+      setSelectedCandidate(null)
+      await loadCategories()
+    } catch (error) {
+      setMessage(error.message)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -693,47 +721,38 @@ function Vote() {
           </h1>
           <p className="vote-text">Daftar semua kandidat pemungutan suara Kelurahan Kemerdekaan.</p>
           <div className="quick-jump">
-            <a className="quick-button" href="#rt">KANDIDAT RT</a>
-            <a className="quick-button" href="#rw">KANDIDAT RW</a>
-            <a className="quick-button secondary" href="#posyandu">KADER POSYANDU</a>
-          </div>
-        </section>
-
-        <section className="candidate-section" id="rt">
-          <div className="section-title">
-            <span>KANDIDAT RT TERFAVORIT</span>
-            <p>Daftar kandidat Ketua RT yang akan mewakili lingkungan Welaran dan sekitarnya.</p>
-          </div>
-          <div className="candidate-grid">
-            {rtCandidates.map((candidate) => (
-              <CandidateCard key={candidate.id} candidate={candidate} onVote={handleVoteClick} />
+            {categories.map((category, index) => (
+              <a
+                key={category.id}
+                className={`quick-button ${index === categories.length - 1 ? 'secondary' : ''}`}
+                href={`#${category.slug}`}
+              >
+                {category.name}
+              </a>
             ))}
           </div>
+          {message ? <p className={`state-message ${message.includes('gagal') || message.includes('sudah') ? 'error' : ''}`}>{message}</p> : null}
         </section>
 
-        <section className="candidate-section" id="rw">
-          <div className="section-title">
-            <span>KANDIDAT RW TERFAVORIT</span>
-            <p>Daftar kandidat Ketua RW untuk wilayah Welaran yang bisa Anda pilih.</p>
-          </div>
-          <div className="candidate-grid">
-            {rwCandidates.map((candidate) => (
-              <CandidateCard key={candidate.id} candidate={candidate} onVote={handleVoteClick} />
-            ))}
-          </div>
-        </section>
+        {isLoading ? (
+          <p className="state-message">Memuat kandidat...</p>
+        ) : categories.map((category) => {
+          const activeCandidates = category.candidates.filter((candidate) => candidate.status === 'ACTIVE')
 
-        <section className="candidate-section" id="posyandu">
-          <div className="section-title">
-            <span>KANDIDAT KADER POSYANDU TERFAVORIT</span>
-            <p>Kandidat Kader Posyandu untuk Kelurahan Kemerdekaan Tahun 2026.</p>
-          </div>
-          <div className="candidate-grid">
-            {posyanduCandidates.map((candidate) => (
-              <CandidateCard key={candidate.id} candidate={candidate} onVote={handleVoteClick} />
-            ))}
-          </div>
-        </section>
+          return (
+            <section className="candidate-section" id={category.slug} key={category.id}>
+              <div className="section-title">
+                <span>{category.name}</span>
+                <p>{category.description || 'Pilih kandidat favorit Anda pada kategori ini.'}</p>
+              </div>
+              <div className="candidate-grid">
+                {activeCandidates.map((candidate) => (
+                  <CandidateCard key={candidate.id} candidate={candidate} onVote={handleVoteClick} />
+                ))}
+              </div>
+            </section>
+          )
+        })}
 
         <footer className="site-footer">
           <div className="footer-links">
@@ -761,6 +780,7 @@ function Vote() {
                 <label>Nama Lengkap</label>
                 <input 
                   type="text" 
+                  name="voterName"
                   className="modal-input" 
                   placeholder="Masukkan nama lengkap Anda" 
                   required 
@@ -769,6 +789,7 @@ function Vote() {
               <div>
                 <label>Alamat Lengkap</label>
                 <textarea 
+                  name="voterAddress"
                   className="modal-input" 
                   rows="3" 
                   placeholder="Contoh: Jl. Welaran, No. 15, RT 01/RW 01" 
@@ -783,8 +804,8 @@ function Vote() {
                 >
                   Batal
                 </button>
-                <button type="submit" className="btn-submit">
-                  Kirim Suara
+                <button type="submit" className="btn-submit" disabled={isSubmitting}>
+                  {isSubmitting ? 'Mengirim...' : 'Kirim Suara'}
                 </button>
               </div>
             </form>
