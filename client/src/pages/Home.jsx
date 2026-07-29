@@ -309,7 +309,7 @@ const homeStyles = `
   .category-grid {
     margin-top: 3rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
     gap: 2rem;
   }
 
@@ -384,7 +384,7 @@ const homeStyles = `
   .stats-section {
     margin-top: 4rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); 
     gap: 1.5rem;
   }
 
@@ -565,17 +565,16 @@ const homeStyles = `
   }
 
   @media (max-width: 480px) {
-    .brand-copy span {
-      display: none; 
-    }
-    .brand-logo {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-    }
-    .nav-links {
-      right: 1rem;
-    }
+    .brand-copy span { display: none; }
+    .brand-copy strong { font-size: 1rem; }
+    .brand-logo, .brand-mark { width: 40px; height: 40px; border-radius: 10px; }
+    .nav-links { right: 1rem; }
+    .hero-banner { padding: 2rem 1rem; min-height: 35vh; }
+    .hero-copy h1 { font-size: 1.8rem; }
+    .hero-text { font-size: 0.9rem; margin-top: 1rem; }
+    .action-button { padding: 0.6rem 1rem; font-size: 0.75rem; }
+    .category-card { padding: 1.5rem; }
+    .stat-card { padding: 1.5rem 1rem; }
   }
 `
 

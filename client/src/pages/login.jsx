@@ -144,13 +144,16 @@ const loginStyles = `
 
   @media (max-width: 480px) {
     .brand-copy span { display: none; }
-    .brand-logo { width: 44px; height: 44px; border-radius: 12px; }
+    .brand-copy strong { font-size: 1rem; }
+    .brand-logo { width: 40px; height: 40px; border-radius: 10px; }
     .topbar-controls { gap: 0.5rem; }
     .beranda-link { display: none; } /* Sembunyikan link BERANDA agar tidak terlalu ramai */
-    .action-button { padding: 0.8rem 1.2rem; font-size: 0.85rem; }
+    .action-button { padding: 0.6rem 1rem; font-size: 0.75rem; }
     .login-main { margin-top: 3rem; }
-    .login-card { padding: 2rem 1.5rem; }
-    .login-card h1 { font-size: 1.75rem; }
+    .login-card { padding: 1.5rem 1rem; width: 95%; }
+    .login-card h1 { font-size: 1.5rem; }
+    .slogan-gold { font-size: 0.85rem; }
+    .input-pill { padding: 0.8rem; }
   }
 `
 

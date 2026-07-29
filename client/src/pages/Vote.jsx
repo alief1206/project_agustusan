@@ -313,7 +313,7 @@ const voteStyles = `
   .candidate-grid {
     margin-top: 2rem;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
     gap: 1.5rem;
   }
 
@@ -598,10 +598,14 @@ const voteStyles = `
 
   @media (max-width: 480px) {
     .brand-copy span { display: none; }
+    .brand-copy strong { font-size: 1rem; }
     .brand-mark,
-    .brand-logo { width: 44px; height: 44px; border-radius: 10px; }
+    .brand-logo { width: 40px; height: 40px; border-radius: 10px; }
     .nav-links { right: 1rem; }
-    
+    .modal-card { padding: 1.5rem; border-radius: 20px; max-height: 90vh; overflow-y: auto; }
+    .vote-hero { padding: 1.5rem 1rem; }
+    .vote-hero h1 { font-size: 2rem; }
+    .candidate-card { padding: 1.5rem 1rem; }
   }
 `
 

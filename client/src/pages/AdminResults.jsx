@@ -395,6 +395,13 @@ const adminResultsStyles = `
       flex-direction: column;
     }
   }
+  @media (max-width: 480px) {
+    .brand-copy span { display: none; }
+    .brand-copy strong { font-size: 1rem; }
+    .brand-logo, .brand-mark { width: 40px; height: 40px; border-radius: 10px; }
+    .admin-results-hero h1 { font-size: 2rem; }
+    .result-card { padding: 1rem; }
+  }
 `
 
 function ResultRow({ item, rank }) {
