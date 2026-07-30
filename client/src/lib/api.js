@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://polling-penganjuran-backend.vercel.app'
 const TOKEN_KEY = 'polling_admin_token'
 
 export const getAdminToken = () => localStorage.getItem(TOKEN_KEY)
