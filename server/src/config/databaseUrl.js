@@ -1,5 +1,9 @@
 const parseDatabaseUrl = (connectionString) => {
+  if (!connectionString) return {};
   const url = new URL(connectionString);
+
+  const sslParam = url.searchParams.get('sslaccept') || url.searchParams.get('sslmode') || url.searchParams.get('ssl-mode');
+  const hasSsl = Boolean(sslParam) || url.hostname.includes('aivencloud.com');
 
   return {
     host: url.hostname,
@@ -7,6 +11,7 @@ const parseDatabaseUrl = (connectionString) => {
     user: decodeURIComponent(url.username || 'root'),
     password: decodeURIComponent(url.password || ''),
     database: url.pathname.replace(/^\//, '') || undefined,
+    ...(hasSsl ? { ssl: { rejectUnauthorized: false } } : {}),
   };
 };
 
