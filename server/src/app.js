@@ -27,6 +27,10 @@ app.use(
   }),
 );
 
+app.get('/', (req, res) => {
+  res.json({ status: 'ok', message: 'Polling Backend API Server is running' });
+});
+
 app.use('/api', routes);
 app.use(notFound);
 app.use(errorHandler);
