@@ -31,6 +31,8 @@ app.get('/', (req, res) => {
   res.json({ status: 'ok', message: 'Polling Backend API Server is running' });
 });
 
+app.get('/favicon.ico', (req, res) => res.status(204).end());
+
 app.use('/api', routes);
 app.use(notFound);
 app.use(errorHandler);
