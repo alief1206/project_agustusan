@@ -9,6 +9,7 @@
     "dev:client": "npm run dev --prefix client",
     "dev:all": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
     "start": "node server/src/server.js",
+    "vercel-build": "prisma generate",
     "db:create": "node server/src/scripts/createDatabase.js",
     "db:verify": "node server/src/scripts/verifyDatabase.js",
     "db:setup": "npm run db:create && npm run db:schema && npm run seed",
