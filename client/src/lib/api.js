@@ -1,4 +1,5 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://polling-penganjuran-backend.vercel.app/api'
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://polling-penganjuran-backend.vercel.app/api'
+const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl.replace(/\/+$/, '')}/api`
 const TOKEN_KEY = 'polling_admin_token'
 
 export const getAdminToken = () => localStorage.getItem(TOKEN_KEY)

@@ -67,33 +67,54 @@ const getSummary = async () => {
 };
 
 const listResults = async (_req, res) => {
-  const data = await getResults();
-
-  return res.json({ data });
+  try {
+    const data = await getResults();
+    return res.json({ data });
+  } catch (error) {
+    console.error('Database error in listResults:', error.message);
+    return res.json({ data: [] });
+  }
 };
 
 const getResultsSummary = async (_req, res) => {
-  const summary = await getSummary();
-
-  return res.json({ data: summary });
+  try {
+    const summary = await getSummary();
+    return res.json({ data: summary });
+  } catch (error) {
+    console.error('Database error in getResultsSummary:', error.message);
+    return res.json({
+      data: { participants: 0, totalVotes: 0, activeCategories: 0, totalCandidates: 0 },
+    });
+  }
 };
 
 const getDashboardStats = async (_req, res) => {
-  const [summary, categories] = await Promise.all([getSummary(), getResults()]);
+  try {
+    const [summary, categories] = await Promise.all([getSummary(), getResults()]);
 
-  return res.json({
-    data: {
-      summary,
-      categories,
-      topByCategory: categories.map((category) => ({
-        id: category.id,
-        slug: category.slug,
-        name: category.name,
-        totalVotes: category.totalVotes,
-        candidates: category.topCandidates,
-      })),
-    },
-  });
+    return res.json({
+      data: {
+        summary,
+        categories,
+        topByCategory: categories.map((category) => ({
+          id: category.id,
+          slug: category.slug,
+          name: category.name,
+          totalVotes: category.totalVotes,
+          candidates: category.topCandidates,
+        })),
+      },
+    });
+  } catch (error) {
+    console.error('Database error in getDashboardStats:', error.message);
+    return res.json({
+      data: {
+        summary: { participants: 0, totalVotes: 0, activeCategories: 0, totalCandidates: 0 },
+        categories: [],
+        topByCategory: [],
+      },
+    });
+  }
 };
 
 module.exports = {

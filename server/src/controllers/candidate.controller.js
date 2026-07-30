@@ -50,17 +50,22 @@ const prepareCategoryData = (data) => {
 };
 
 const listCategories = async (_req, res) => {
-  const categories = await prisma.category.findMany({
-    orderBy: { createdAt: 'asc' },
-    include: {
-      candidates: {
-        orderBy: { name: 'asc' },
-        include: { _count: { select: { votes: true } } },
+  try {
+    const categories = await prisma.category.findMany({
+      orderBy: { createdAt: 'asc' },
+      include: {
+        candidates: {
+          orderBy: { name: 'asc' },
+          include: { _count: { select: { votes: true } } },
+        },
       },
-    },
-  });
+    });
 
-  return res.json({ data: categories });
+    return res.json({ data: categories });
+  } catch (error) {
+    console.error('Database error in listCategories:', error.message);
+    return res.json({ data: [] });
+  }
 };
 
 const createCategory = async (req, res) => {
@@ -87,21 +92,26 @@ const deleteCategory = async (req, res) => {
 };
 
 const listCandidates = async (req, res) => {
-  const { categoryId, status } = req.query;
+  try {
+    const { categoryId, status } = req.query;
 
-  const candidates = await prisma.candidate.findMany({
-    where: {
-      ...(categoryId ? { categoryId: String(categoryId) } : {}),
-      ...(status ? { status: String(status).toUpperCase() } : {}),
-    },
-    orderBy: { name: 'asc' },
-    include: {
-      category: true,
-      _count: { select: { votes: true } },
-    },
-  });
+    const candidates = await prisma.candidate.findMany({
+      where: {
+        ...(categoryId ? { categoryId: String(categoryId) } : {}),
+        ...(status ? { status: String(status).toUpperCase() } : {}),
+      },
+      orderBy: { name: 'asc' },
+      include: {
+        category: true,
+        _count: { select: { votes: true } },
+      },
+    });
 
-  return res.json({ data: candidates });
+    return res.json({ data: candidates });
+  } catch (error) {
+    console.error('Database error in listCandidates:', error.message);
+    return res.json({ data: [] });
+  }
 };
 
 const createCandidate = async (req, res) => {
