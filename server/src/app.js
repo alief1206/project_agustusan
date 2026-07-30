@@ -14,7 +14,24 @@ const app = express();
 
 app.use(helmet());
 app.use(compression());
-app.use(cors({ origin: env.CLIENT_ORIGIN, credentials: true }));
+const allowedOrigins = [
+  env.CLIENT_ORIGIN,
+  'http://localhost:5173',
+  'https://polling-penganjuran.vercel.app',
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin) || origin.endsWith('.vercel.app')) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  }),
+);
 app.use(cookieParser());
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true }));
