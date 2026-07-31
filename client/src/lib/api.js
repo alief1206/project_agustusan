@@ -1,11 +1,14 @@
 const getFallbackUrl = () => {
   if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-    return 'https://polling-penganjuran-backend.vercel.app/api'
+    return 'https://projectagustusan-production.up.railway.app/api'
   }
   return 'http://localhost:5000/api'
 }
 
-const rawBaseUrl = import.meta.env.VITE_API_URL || getFallbackUrl()
+let rawBaseUrl = (import.meta.env.VITE_API_URL || '').trim() || getFallbackUrl()
+if (rawBaseUrl && !rawBaseUrl.startsWith('http://') && !rawBaseUrl.startsWith('https://')) {
+  rawBaseUrl = `https://${rawBaseUrl}`
+}
 const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl.replace(/\/+$/, '')}/api`
 const TOKEN_KEY = 'polling_admin_token'
 
