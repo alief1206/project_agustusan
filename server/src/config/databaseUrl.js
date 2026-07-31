@@ -11,6 +11,9 @@ const parseDatabaseUrl = (connectionString) => {
     user: decodeURIComponent(url.username || 'root'),
     password: decodeURIComponent(url.password || ''),
     database: url.pathname.replace(/^\//, '') || undefined,
+    connectTimeout: 20000,
+    acquireTimeout: 20000,
+    connectionLimit: 10,
     ...(hasSsl ? { ssl: { rejectUnauthorized: false } } : {}),
   };
 };
