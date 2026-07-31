@@ -640,9 +640,10 @@ function Vote() {
   const loadCategories = async () => {
     try {
       const data = await api.getCategories()
-      setCategories(data)
+      setCategories(Array.isArray(data) ? data : [])
       setMessage('')
     } catch (error) {
+      setCategories([])
       setMessage(error.message)
     } finally {
       setIsLoading(false)
@@ -725,10 +726,10 @@ function Vote() {
           </h1>
           <p className="vote-text">Daftar semua kandidat pemungutan suara Kelurahan Kemerdekaan.</p>
           <div className="quick-jump">
-            {categories.map((category, index) => (
+            {(categories || []).map((category, index) => (
               <a
                 key={category.id}
-                className={`quick-button ${index === categories.length - 1 ? 'secondary' : ''}`}
+                className={`quick-button ${index === (categories || []).length - 1 ? 'secondary' : ''}`}
                 href={`#${category.slug}`}
               >
                 {category.name}
@@ -740,8 +741,8 @@ function Vote() {
 
         {isLoading ? (
           <p className="state-message">Memuat kandidat...</p>
-        ) : categories.map((category) => {
-          const activeCandidates = category.candidates.filter((candidate) => candidate.status === 'ACTIVE')
+        ) : (categories || []).map((category) => {
+          const activeCandidates = (category.candidates || []).filter((candidate) => candidate.status === 'ACTIVE')
 
           return (
             <section className="candidate-section" id={category.slug} key={category.id}>

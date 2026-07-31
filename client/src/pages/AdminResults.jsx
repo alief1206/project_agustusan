@@ -427,12 +427,16 @@ function AdminResults() {
   const [categories, setCategories] = useState([])
 
   const loadResults = async () => {
-    const data = await api.getResults()
-    setCategories(data)
+    try {
+      const data = await api.getResults()
+      setCategories(Array.isArray(data) ? data : [])
+    } catch {
+      setCategories([])
+    }
   }
 
   useEffect(() => {
-    loadResults().catch(() => setCategories([]))
+    loadResults()
   }, [])
 
   return (
@@ -484,14 +488,14 @@ function AdminResults() {
         </section>
 
         <div className="results-grid">
-          {categories.map((category) => (
+          {(categories || []).map((category) => (
             <section key={category.id} className="result-card">
               <div className="result-card-header">
                 <span>{category.name}</span>
-                <span>{category.totalVotes.toLocaleString('id-ID')} Suara</span>
+                <span>{(category.totalVotes ?? 0).toLocaleString('id-ID')} Suara</span>
               </div>
               <div className="result-list">
-                {category.candidates.map((item, index) => (
+                {(category.candidates || []).map((item, index) => (
                   <ResultRow key={item.id} item={item} rank={index + 1} />
                 ))}
               </div>

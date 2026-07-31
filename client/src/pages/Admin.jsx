@@ -914,14 +914,20 @@ function Admin() {
   }
 
   const loadAdminData = async () => {
-    const [dashboardData, categoryData, candidateData] = await Promise.all([
-      api.getDashboard(),
-      api.getCategories(),
-      api.getCandidates(),
-    ])
-    setDashboard(dashboardData)
-    setCategories(categoryData)
-    setCandidates(candidateData)
+    try {
+      const [dashboardData, categoryData, candidateData] = await Promise.all([
+        api.getDashboard(),
+        api.getCategories(),
+        api.getCandidates(),
+      ])
+      setDashboard(dashboardData || null)
+      setCategories(Array.isArray(categoryData) ? categoryData : [])
+      setCandidates(Array.isArray(candidateData) ? candidateData : [])
+    } catch (error) {
+      setCategories([])
+      setCandidates([])
+      showMessage(error.message, 'error')
+    }
   }
 
   useEffect(() => {
@@ -948,7 +954,7 @@ function Admin() {
 
   const topCandidates = useMemo(() => {
     return (dashboard?.topByCategory || []).flatMap((category) =>
-      category.candidates.map((candidate, index) => ({
+      (category.candidates || []).map((candidate, index) => ({
         ...candidate,
         rank: index + 1,
         categoryName: category.name,
@@ -959,8 +965,8 @@ function Admin() {
   const filteredCandidates = useMemo(() => {
     const keyword = searchTerm.trim().toLowerCase()
 
-    return candidates.filter((candidate) => {
-      const matchesKeyword = !keyword || candidate.name.toLowerCase().includes(keyword)
+    return (candidates || []).filter((candidate) => {
+      const matchesKeyword = !keyword || (candidate.name || '').toLowerCase().includes(keyword)
       const matchesCategory = !categoryFilter || candidate.categoryId === categoryFilter
 
       return matchesKeyword && matchesCategory

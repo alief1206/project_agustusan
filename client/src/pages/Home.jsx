@@ -634,8 +634,10 @@ function Home() {
   useEffect(() => {
     api.getDashboard()
       .then((data) => {
-        setCategories(data.categories)
-        setSummary(data.summary)
+        setCategories(Array.isArray(data?.categories) ? data.categories : [])
+        if (data?.summary) {
+          setSummary(data.summary)
+        }
       })
       .catch(() => {
         setCategories([])
@@ -701,7 +703,7 @@ function Home() {
         <section className="popular-section" id="categories">
           <h2>KATEGORI POLLING POPULER</h2>
           <div className="category-grid">
-            {categories.map((category, index) => (
+            {(categories || []).map((category, index) => (
               <article className="category-card" key={category.id}>
                 <div className="category-icon">
                   <CategoryIcon type={category.slug} />
@@ -719,19 +721,19 @@ function Home() {
         <section className="stats-section">
           <div className="stat-card">
             <span>Peserta Polling</span>
-            <strong>{summary.participants.toLocaleString('id-ID')}</strong>
+            <strong>{(summary?.participants ?? 0).toLocaleString('id-ID')}</strong>
           </div>
           <div className="stat-card">
             <span>Kategori Aktif</span>
-            <strong>{summary.activeCategories.toLocaleString('id-ID')}</strong>
+            <strong>{(summary?.activeCategories ?? 0).toLocaleString('id-ID')}</strong>
           </div>
           <div className="stat-card">
             <span>Jumlah Kandidat</span>
-            <strong>{summary.totalCandidates.toLocaleString('id-ID')}</strong>
+            <strong>{(summary?.totalCandidates ?? 0).toLocaleString('id-ID')}</strong>
           </div>
           <div className="stat-card">
             <span>Total Vote</span>
-            <strong>{summary.totalVotes.toLocaleString('id-ID')}</strong>
+            <strong>{(summary?.totalVotes ?? 0).toLocaleString('id-ID')}</strong>
           </div>
         </section>
 
