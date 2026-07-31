@@ -1,4 +1,4 @@
-const rawBaseUrl = import.meta.env.VITE_API_URL || 'https://polling-penganjuran-backend.vercel.app/api'
+const rawBaseUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
 const API_BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl.replace(/\/+$/, '')}/api`
 const TOKEN_KEY = 'polling_admin_token'
 
