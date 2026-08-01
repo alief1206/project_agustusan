@@ -899,9 +899,12 @@ function Admin() {
   const [categoryToEdit, setCategoryToEdit] = useState(null)
   const [categories, setCategories] = useState([])
   const [candidates, setCandidates] = useState([])
+  const [votes, setVotes] = useState([])
   const [dashboard, setDashboard] = useState(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [categoryFilter, setCategoryFilter] = useState('')
+  const [voteSearchTerm, setVoteSearchTerm] = useState('')
+  const [voteCategoryFilter, setVoteCategoryFilter] = useState('')
   const [message, setMessage] = useState('')
   const [messageType, setMessageType] = useState('success')
   const [isSaving, setIsSaving] = useState(false)
@@ -915,17 +918,20 @@ function Admin() {
 
   const loadAdminData = async () => {
     try {
-      const [dashboardData, categoryData, candidateData] = await Promise.all([
+      const [dashboardData, categoryData, candidateData, voteData] = await Promise.all([
         api.getDashboard(),
         api.getCategories(),
         api.getCandidates(),
+        api.getVotes(),
       ])
       setDashboard(dashboardData || null)
       setCategories(Array.isArray(categoryData) ? categoryData : [])
       setCandidates(Array.isArray(candidateData) ? candidateData : [])
+      setVotes(Array.isArray(voteData) ? voteData : [])
     } catch (error) {
       setCategories([])
       setCandidates([])
+      setVotes([])
       showMessage(error.message, 'error')
     }
   }
@@ -972,6 +978,21 @@ function Admin() {
       return matchesKeyword && matchesCategory
     })
   }, [candidates, categoryFilter, searchTerm])
+
+  const filteredVotes = useMemo(() => {
+    const keyword = voteSearchTerm.trim().toLowerCase()
+
+    return (votes || []).filter((vote) => {
+      const matchesKeyword =
+        !keyword ||
+        (vote.voterName || '').toLowerCase().includes(keyword) ||
+        (vote.voterAddress || '').toLowerCase().includes(keyword) ||
+        (vote.candidate?.name || '').toLowerCase().includes(keyword)
+      const matchesCategory = !voteCategoryFilter || vote.categoryId === voteCategoryFilter
+
+      return matchesKeyword && matchesCategory
+    })
+  }, [votes, voteCategoryFilter, voteSearchTerm])
 
   const openModal = (type) => {
     setModalType(type)
@@ -1061,12 +1082,16 @@ function Admin() {
     if (!itemToDelete) return
 
     try {
-      if (itemToDelete.deleteType === 'category') {
+      if (itemToDelete.deleteType === 'vote') {
+        await api.deleteVote(itemToDelete.id)
+        showMessage(`Suara dari "${itemToDelete.voterName}" berhasil dihapus.`)
+      } else if (itemToDelete.deleteType === 'category') {
         await api.deleteCategory(itemToDelete.id)
+        showMessage(`"${itemToDelete.name}" berhasil dihapus.`)
       } else {
         await api.deleteCandidate(itemToDelete.id)
+        showMessage(`"${itemToDelete.name}" berhasil dihapus.`)
       }
-      showMessage(`"${itemToDelete.name}" berhasil dihapus.`)
       closeConfirmModal()
       await loadAdminData()
     } catch (error) {
@@ -1115,6 +1140,8 @@ function Admin() {
 
             <nav className={`nav-links admin-nav ${isMenuOpen ? 'open' : ''}`} aria-label="Admin navigation">
               <Link to="/" onClick={() => setIsMenuOpen(false)}>BERANDA</Link>
+              <a href="#kelola-kandidat" onClick={() => setIsMenuOpen(false)}>KANDIDAT</a>
+              <a href="#kelola-suara" onClick={() => setIsMenuOpen(false)}>DATA VOTE</a>
               <Link to="/admin/results" onClick={() => setIsMenuOpen(false)}>STATISTIK</Link>
             </nav>
 
@@ -1206,6 +1233,68 @@ function Admin() {
                       {filteredCandidates.length === 0 ? (
                         <tr>
                           <td colSpan="6">Belum ada kandidat yang cocok.</td>
+                        </tr>
+                      ) : null}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="admin-table-card" id="kelola-suara" style={{ marginTop: '2rem' }}>
+                <div className="admin-table-header">
+                  <h2>DAFTAR RIWAYAT SUARA & ALAMAT PEMILIH</h2>
+                  <div className="admin-filters">
+                    <input
+                      type="search"
+                      placeholder="Cari pemilih / alamat / kandidat..."
+                      value={voteSearchTerm}
+                      onChange={(event) => setVoteSearchTerm(event.target.value)}
+                    />
+                    <select value={voteCategoryFilter} onChange={(event) => setVoteCategoryFilter(event.target.value)}>
+                      <option value="">Semua Kategori</option>
+                      {categories.map((category) => (
+                        <option key={category.id} value={category.id}>{category.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className="table-wrapper">
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Nama Pemilih</th>
+                        <th>Alamat Lengkap</th>
+                        <th>Kategori</th>
+                        <th>Kandidat Dipilih</th>
+                        <th>Waktu Vote</th>
+                        <th>Tindakan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredVotes.map((vote) => (
+                        <tr key={vote.id}>
+                          <td>
+                            <strong>{vote.voterName}</strong>
+                          </td>
+                          <td style={{ maxWidth: '260px', wordBreak: 'break-word' }}>
+                            {vote.voterAddress}
+                          </td>
+                          <td>{vote.category?.name || '-'}</td>
+                          <td>
+                            <strong>{vote.candidate?.name || '-'}</strong>
+                            {vote.candidate?.role ? <span>{vote.candidate.role}</span> : null}
+                          </td>
+                          <td>{new Date(vote.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                          <td>
+                            <button type="button" className="danger" onClick={() => openConfirmModal(vote, 'vote')}>
+                              HAPUS VOTE
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      {filteredVotes.length === 0 ? (
+                        <tr>
+                          <td colSpan="6">Belum ada data suara yang cocok.</td>
                         </tr>
                       ) : null}
                     </tbody>
@@ -1389,9 +1478,13 @@ function Admin() {
               <div className="modal-header">
                 <h2>Konfirmasi Penghapusan</h2>
                 <p>
-                  Apakah Anda yakin ingin menghapus item ini?
+                  Apakah Anda yakin ingin menghapus {itemToDelete?.deleteType === 'vote' ? 'data suara dari' : 'item'}?
                   <br />
-                  <strong>{itemToDelete?.name}</strong>
+                  <strong>
+                    {itemToDelete?.deleteType === 'vote'
+                      ? `${itemToDelete.voterName} (Alamat: ${itemToDelete.voterAddress})`
+                      : itemToDelete?.name}
+                  </strong>
                   <br />
                   Tindakan ini tidak dapat dibatalkan.
                 </p>

@@ -71,4 +71,37 @@ const createVote = async (req, res) => {
   }
 };
 
-module.exports = { createVote };
+const listVotes = async (_req, res) => {
+  const votes = await prisma.vote.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      candidate: {
+        select: { id: true, name: true, role: true },
+      },
+      category: {
+        select: { id: true, name: true, slug: true },
+      },
+    },
+  });
+
+  return res.json({ data: votes });
+};
+
+const deleteVote = async (req, res) => {
+  const { id } = req.params;
+  const existing = await prisma.vote.findUnique({ where: { id } });
+
+  if (!existing) {
+    return res.status(404).json({ message: 'Data suara tidak ditemukan.' });
+  }
+
+  await prisma.vote.delete({ where: { id } });
+
+  return res.json({ message: 'Data suara berhasil dihapus.' });
+};
+
+module.exports = {
+  createVote,
+  listVotes,
+  deleteVote,
+};

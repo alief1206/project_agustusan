@@ -61,6 +61,7 @@ export const api = {
   getCandidates: () => request('/candidates'),
   createCandidate: (body) => request('/candidates', { method: 'POST', body, auth: true }),
   updateCandidate: (id, body) => request(`/candidates/${id}`, { method: 'PATCH', body, auth: true }),
-  deleteCandidate: (id) => request(`/candidates/${id}`, { method: 'DELETE', auth: true }),
   createVote: (body) => request('/votes', { method: 'POST', body }),
+  getVotes: () => request('/votes', { auth: true }),
+  deleteVote: (id) => request(`/votes/${id}`, { method: 'DELETE', auth: true }),
 }
