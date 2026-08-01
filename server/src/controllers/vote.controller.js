@@ -26,13 +26,17 @@ const createVote = async (req, res) => {
     const voterNameKey = normalizeText(data.voterName);
     const voterAddressKey = normalizeText(data.voterAddress);
     const existingVote = await prisma.vote.findFirst({
-      where: { voterNameKey, voterAddressKey },
+      where: {
+        voterNameKey,
+        voterAddressKey,
+        categoryId: candidate.categoryId,
+      },
       select: { id: true },
     });
 
     if (existingVote) {
       return res.status(409).json({
-        message: 'Nama dan alamat ini sudah pernah mengisi polling. Data yang sama hanya bisa vote satu kali.',
+        message: 'Nama dan alamat ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
       });
     }
 
@@ -59,7 +63,7 @@ const createVote = async (req, res) => {
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return res.status(409).json({
-        message: 'Nama dan alamat ini sudah pernah mengisi polling. Data yang sama hanya bisa vote satu kali.',
+        message: 'Nama dan alamat ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
       });
     }
 

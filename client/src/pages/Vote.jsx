@@ -724,7 +724,7 @@ function Vote() {
           <h1>
             PILIH <span>KANDIDAT</span> ANDA
           </h1>
-          <p className="vote-text">Daftar semua kandidat pemungutan suara Kelurahan Kemerdekaan.</p>
+          <p className="vote-text">Daftar semua kandidat pemungutan suara Kelurahan Kemerdekaan. Setiap warga dapat memberikan 1 suara untuk setiap kategori.</p>
           <div className="quick-jump">
             {(categories || []).map((category, index) => (
               <a

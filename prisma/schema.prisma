@@ -59,7 +59,7 @@ model Vote {
   category        Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt       DateTime  @default(now())
 
-  @@unique([voterNameKey, voterAddressKey])
+  @@unique([voterNameKey, voterAddressKey, categoryId])
   @@index([candidateId])
   @@index([categoryId])
 }

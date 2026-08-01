@@ -564,6 +564,98 @@ const homeStyles = `
     }
   }
 
+  .how-to-vote-section {
+    margin-top: 3.5rem;
+    padding: 3rem 2.5rem;
+    background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+    border-radius: 32px;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+    box-shadow: 0 20px 40px rgba(16, 185, 129, 0.06);
+  }
+
+  .how-to-vote-header {
+    text-align: center;
+    max-width: 650px;
+    margin: 0 auto 2.5rem;
+  }
+
+  .how-to-vote-header h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #111827;
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+  }
+
+  .how-to-vote-header p {
+    font-size: 1rem;
+    color: #4b5563;
+    margin: 0;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .step-card {
+    background: #ffffff;
+    padding: 2rem 1.5rem;
+    border-radius: 24px;
+    border: 1px solid rgba(16, 185, 129, 0.12);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .step-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 16px 32px rgba(16, 185, 129, 0.12);
+  }
+
+  .step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    background: #10b981;
+    color: #ffffff;
+    font-weight: 800;
+    font-size: 1.2rem;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 6px 16px rgba(16, 185, 129, 0.25);
+  }
+
+  .step-card h3 {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 0.5rem;
+  }
+
+  .step-card p {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .rule-tag {
+    display: inline-block;
+    margin-top: 1rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #065f46;
+    background: #d1fae5;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+  }
+
   @media (max-width: 480px) {
     .brand-copy span { display: none; }
     .brand-copy strong { font-size: 1rem; }
@@ -715,6 +807,39 @@ function Home() {
                 <Link to="/vote" className="category-action">VOTE</Link>
               </article>
             ))}
+          </div>
+        </section>
+
+        <section className="how-to-vote-section" id="cara">
+          <div className="how-to-vote-header">
+            <h2>CARA MEMILIH / VOTE</h2>
+            <p>Panduan praktis berpartisipasi dalam Polling Merdeka Kemerdekaan Indonesia.</p>
+          </div>
+          <div className="steps-grid">
+            <article className="step-card">
+              <div className="step-number">1</div>
+              <h3>Pilih Kategori</h3>
+              <p>Lihat daftar kategori polling yang tersedia (seperti RT, RW, atau Posyandu) lalu klik tombol <strong>VOTE</strong>.</p>
+            </article>
+
+            <article className="step-card">
+              <div className="step-number">2</div>
+              <h3>Pilih Kandidat</h3>
+              <p>Tentukan kandidat favoritmu pada kategori tersebut dan tekan tombol <strong>PILIH KANDIDAT</strong>.</p>
+            </article>
+
+            <article className="step-card">
+              <div className="step-number">3</div>
+              <h3>Isi Data Identitas</h3>
+              <p>Masukkan <strong>Nama Lengkap</strong> dan <strong>Alamat Tempat Tinggal</strong> secara jujur dan tepat untuk verifikasi.</p>
+            </article>
+
+            <article className="step-card">
+              <div className="step-number">4</div>
+              <h3>Kirim Suara Anda</h3>
+              <p>Konfirmasi dan kirim suaramu. Suara akan langsung tercatat secara otomatis pada sistem polling.</p>
+              <span className="rule-tag">✓ 1 Vote Per Kategori</span>
+            </article>
           </div>
         </section>
 
