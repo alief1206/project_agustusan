@@ -657,7 +657,7 @@ function Home() {
             </div>
             <div className="brand-copy">
               <strong>Polling Merdeka</strong>
-              <span>Dirgahayu RI ke-79</span>
+              <span>Dirgahayu RI ke-81</span>
             </div>
           </div>
 
@@ -690,7 +690,7 @@ function Home() {
           <div className="hero-glow" />
           <div className="hero-copy">
             <p className="hero-eyebrow">AYO SUARAKAN PILIHANMU DI AGUSTUSAN INI!</p>
-            <h1>Ikuti Polling Seru Kemerdekaan Indonesia ke-79!</h1>
+            <h1>Ikuti Polling Seru Kemerdekaan Indonesia ke-81!</h1>
             <p className="hero-text">
               Bergabung dalam perayaan kemerdekaan dengan memilih kategori favoritmu dan tunjukkan kebanggaan nasional.
             </p>
@@ -758,7 +758,7 @@ function Home() {
               <span className="social-symbol">Y</span>
             </a>
           </div>
-          <div className="footer-copy">© 2024 Polling Merdeka, Dirgahayu RI ke-79!</div>
+          <div className="footer-copy">© 2024 Polling Merdeka, Dirgahayu RI ke-81!</div>
         </footer>
       </div>
       </div>

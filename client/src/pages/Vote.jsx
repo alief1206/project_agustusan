@@ -696,7 +696,7 @@ function Vote() {
             </div>
             <div className="brand-copy">
               <strong>Polling Merdeka</strong>
-              <span>Dirgahayu RI ke-79</span>
+              <span>Dirgahayu RI ke-81</span>
             </div>
           </div>
 
@@ -766,7 +766,7 @@ function Vote() {
             <Link to="/">Kontak</Link>
             <Link to="/">Syarat</Link>
           </div>
-          <div className="footer-copy">© 2024 Polling Merdeka. Dirgahayu RI ke-79!</div>
+          <div className="footer-copy">© 2024 Polling Merdeka. Dirgahayu RI ke-81!</div>
         </footer>
       </div>
       </div>

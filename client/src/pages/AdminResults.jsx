@@ -451,7 +451,7 @@ function AdminResults() {
             </div>
             <div className="brand-copy">
               <strong>Polling Merdeka</strong>
-              <span>Dirgahayu RI ke-79</span>
+              <span>Dirgahayu RI ke-81</span>
             </div>
           </div>
 

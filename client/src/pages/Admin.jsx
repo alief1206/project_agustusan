@@ -1109,7 +1109,7 @@ function Admin() {
               </div>
               <div className="brand-copy">
                 <strong>Polling Merdeka</strong>
-                <span>Dirgahayu RI ke-79</span>
+                <span>Dirgahayu RI ke-81</span>
               </div>
             </div>
 
@@ -1136,9 +1136,9 @@ function Admin() {
 
           <section className="admin-hero">
             <h1>
-              DASBOR ADMIN: <span>KELOLA PEMUNGUTAN SUARA 'POLLING MERDEKA 79'</span>
+              DASBOR ADMIN: <span>KELOLA PEMUNGUTAN SUARA 'POLLING MERDEKA 81'</span>
             </h1>
-            <p>Kelola kandidat, kategori, statistik, dan pengguna secara cepat dan akurat di Polling Merdeka 79.</p>
+            <p>Kelola kandidat, kategori, statistik, dan pengguna secara cepat dan akurat di Polling Merdeka 81.</p>
             {message ? <p className={`admin-message ${messageType === 'error' ? 'error' : ''}`}>{message}</p> : null}
           </section>
 
@@ -1266,7 +1266,7 @@ function Admin() {
               <Link to="/">Kontak</Link>
               <Link to="/">Syarat</Link>
             </div>
-            <div className="footer-copy">© 2024 Polling Merdeka. Dirgahayu RI ke-79!</div>
+            <div className="footer-copy">© 2024 Polling Merdeka. Dirgahayu RI ke-81!</div>
           </footer>
         </div>
 
