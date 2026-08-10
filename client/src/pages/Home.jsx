@@ -824,13 +824,6 @@ function Home() {
           </nav>
 
           <div className="topbar-actions">
-            <button type="button" className="action-button secondary refresh-btn" onClick={() => window.location.reload()}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="23 4 23 10 17 10"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-              </svg>
-              Refresh
-            </button>
             <Link to="/login" className="action-button desktop-only-action">
               ADMIN
             </Link>
