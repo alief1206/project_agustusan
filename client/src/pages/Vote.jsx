@@ -37,10 +37,19 @@ const voteStyles = `
 
   .dashboard {
     position: relative;
-    overflow: hidden;
+    overflow-x: clip;
     display: flex;
     flex-direction: column;
     flex: 1; 
+  }
+
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 998;
   }
 
   .page-frame {
@@ -59,12 +68,12 @@ const voteStyles = `
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.98);
     border-radius: 999px;
     padding: 1rem 2rem;
     box-shadow: 0 10px 40px rgba(16, 185, 129, 0.08); 
     position: relative;
-    z-index: 50; 
+    z-index: 1000; 
   }
 
   .brand {
@@ -558,34 +567,107 @@ const voteStyles = `
   }
 
   @media (max-width: 768px) {
-    .mobile-menu-btn { display: block; }
-    .topbar-actions { gap: 0.5rem; }
-    .action-button { padding: 0.5rem 0.8rem; font-size: 0.75rem; }
+    .mobile-menu-btn {
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 12px;
+      background: #f0fdf4;
+      color: #10b981;
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .topbar {
+      border-radius: 24px;
+      padding: 0.75rem 1rem;
+      position: relative;
+      z-index: 1000;
+      gap: 0.5rem;
+    }
+    .brand {
+      min-width: 0;
+      flex: 1;
+      gap: 0.5rem;
+    }
+    .brand-copy strong {
+      font-size: 0.95rem;
+    }
+    .brand-copy span {
+      display: none;
+    }
+    .topbar-actions {
+      gap: 0.5rem;
+      flex-shrink: 0;
+    }
+    .refresh-btn {
+      padding: 0.45rem 0.8rem;
+      font-size: 0.8rem;
+    }
+    .desktop-only-action {
+      display: none !important;
+    }
 
     .nav-links {
       display: none;
       position: absolute;
-      top: calc(100% + 0.5rem);
-      right: 1.25rem;
-      width: 240px;
+      top: calc(100% + 0.6rem);
+      left: 0.5rem;
+      right: 0.5rem;
+      width: auto;
+      max-width: calc(100vw - 2rem);
+      margin-left: auto;
       background: #ffffff;
       flex-direction: column;
       align-items: stretch;
       gap: 0.5rem;
-      padding: 1.5rem;
-      border-radius: 1.25rem;
-      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
-      border: 1px solid #f3f4f6;
-      z-index: 100;
+      padding: 1.25rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18), 0 4px 15px rgba(16, 185, 129, 0.12);
+      border: 1.5px solid #e5e7eb;
+      z-index: 999;
     }
 
-    .nav-links.open { display: flex; }
-    .nav-links a { 
-      text-align: right; 
-      display: block;
+    .nav-links.open {
+      display: flex !important;
+      animation: navMenuSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes navMenuSlide {
+      from {
+        opacity: 0;
+        transform: translateY(-8px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .nav-links a {
+      text-align: left !important;
+      display: flex !important;
+      align-items: center;
       width: 100%;
-      padding: 0.5rem !important;
-      border-radius: 8px !important;
+      padding: 0.85rem 1.15rem !important;
+      border-radius: 12px !important;
+      color: #111827 !important;
+      font-size: 0.95rem !important;
+      font-weight: 700 !important;
+      background: #f9fafb;
+      border: 1px solid #f3f4f6;
+      text-decoration: none;
+      min-height: 44px;
+    }
+
+    .nav-links a:hover,
+    .nav-links a:active {
+      background: #ecfdf5 !important;
+      color: #059669 !important;
+      border-color: #a7f3d0 !important;
     }
 
     .vote-hero h1 { font-size: 2.5rem; }
@@ -601,7 +683,6 @@ const voteStyles = `
     .brand-copy strong { font-size: 1rem; }
     .brand-mark,
     .brand-logo { width: 40px; height: 40px; border-radius: 10px; }
-    .nav-links { right: 1rem; }
     .modal-card { padding: 1.5rem; border-radius: 20px; max-height: 90vh; overflow-y: auto; }
     .vote-hero { padding: 1.5rem 1rem; }
     .vote-hero h1 { font-size: 2rem; }
@@ -687,6 +768,7 @@ function Vote() {
   return (
     <>
       <style>{voteStyles}</style>
+      {isMenuOpen && <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)} />}
       <div className="dashboard vote-page">
       <div className="page-frame">
         <header className="topbar">
@@ -704,16 +786,24 @@ function Vote() {
             <Link to="/" onClick={() => setIsMenuOpen(false)}>BERANDA</Link>
             <a href="/#categories" onClick={() => setIsMenuOpen(false)}>KATEGORI POLLING</a>
             <a href="/#cara" onClick={() => setIsMenuOpen(false)}>CARA MEMILIH</a>
+            <Link to="/" onClick={() => setIsMenuOpen(false)}>KEMBALI KE BERANDA</Link>
           </nav>
 
           <div className="topbar-actions">
-            <Link to="/" className="action-button">KEMBALI</Link>
+            <button type="button" className="action-button secondary refresh-btn" onClick={loadCategories}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+              </svg>
+              Refresh
+            </button>
+            <Link to="/" className="action-button desktop-only-action">KEMBALI</Link>
             <button 
               className="mobile-menu-btn" 
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle navigation"
             >
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                 <path d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 12h16M4 6h16M4 18h16"} />
               </svg>
             </button>

@@ -15,7 +15,7 @@ const loginStyles = `
   html, body { margin: 0; min-height: 100vh; }
   body { background: #ffffff; }
   #root { min-height: 100vh; display: flex; flex-direction: column; }
-  .dashboard { position: relative; overflow: hidden; display: flex; flex-direction: column; flex: 1; }
+  .dashboard { position: relative; overflow-x: clip; display: flex; flex-direction: column; flex: 1; }
 
   .page-frame {
     position: relative;
