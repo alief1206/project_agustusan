@@ -42,27 +42,18 @@ svg {
   }
 
   .dashboard {
-    position: relative;
-    overflow-x: clip;
-    width: 100%;
-  }
+  position: relative;
+  overflow-x: hidden;
+  width: 100%;
+}
 
   .page-frame {
-    position: relative;
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding: 1.5rem 1rem 3rem;
-  }
-
-  .menu-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(2px);
-    -webkit-backdrop-filter: blur(2px);
-    z-index: 998;
-  }
+  position: relative;
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
 
   .topbar {
     display: flex;
@@ -70,12 +61,12 @@ svg {
     justify-content: space-between;
     flex-wrap: wrap;
     gap: 1rem;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(255, 255, 255, 0.95);
     border-radius: 30px;
     padding: 1.25rem 1.75rem;
     box-shadow: 0 10px 40px rgba(16, 185, 129, 0.08);
     position: relative;
-    z-index: 1000;
+    z-index: 1;
   }
 
   .brand {
@@ -322,30 +313,14 @@ svg {
   }
 
   .admin-filters input,
-  .admin-filters select,
-  .modal-form select {
+  .admin-filters select {
     width: 100%;
     border-radius: 12px;
     border: 1px solid #e5e7eb;
     padding: 0.85rem 1rem;
-    background-color: #ffffff;
+    background: #ffffff;
     font-size: 0.95rem;
-    color: #111827;
-    appearance: none;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2310b981'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right 0.85rem center;
-    background-size: 1.2rem;
-    padding-right: 2.5rem !important;
-  }
-
-  .admin-filters select option,
-  .modal-form select option {
-    color: #111827;
-    background-color: #ffffff;
-    padding: 0.5rem;
+    color: #374151;
   }
 
   .table-wrapper {
@@ -705,143 +680,68 @@ svg {
 
   @media (max-width: 820px) {
     .mobile-menu-btn {
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-      padding: 0;
-      border-radius: 12px;
-      background: #f0fdf4;
-      color: #10b981;
-      border: none;
-      cursor: pointer;
-      flex-shrink: 0;
+      display: block; 
     }
 
     .topbar {
-      padding: 0.75rem 1rem;
+      padding: 1rem 1.25rem;
       border-radius: 24px;
-      position: relative;
-      z-index: 1000;
     }
 
     .nav-links {
-      display: none;
+      display: none; 
       position: absolute;
-      top: calc(100% + 0.6rem);
-      left: 0.5rem;
-      right: 0.5rem;
-      width: auto;
-      max-width: calc(100vw - 2rem);
-      margin-left: auto;
+      top: calc(100% + 0.5rem); 
+      right: 1.25rem; 
+      width: 240px;
       background: #ffffff;
       flex-direction: column;
       align-items: stretch;
       gap: 0.5rem;
-      padding: 1.25rem;
-      border-radius: 1.5rem;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.18), 0 4px 15px rgba(16, 185, 129, 0.12);
-      border: 1.5px solid #e5e7eb;
-      z-index: 999;
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15); 
+      border: 1px solid #f3f4f6;
+      z-index: 100;
     }
 
     .nav-links.open {
-      display: flex !important;
-      animation: navMenuSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      display: flex; 
     }
 
-    @keyframes navMenuSlide {
-      from {
-        opacity: 0;
-        transform: translateY(-8px) scale(0.97);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
-
-    .nav-links a,
-    .nav-links button.nav-link-btn {
-      text-align: left !important;
-      display: flex !important;
-      align-items: center;
+    .nav-links a {
+      text-align: right; 
+      display: block;
       width: 100%;
-      padding: 0.85rem 1.15rem !important;
-      border-radius: 12px !important;
-      color: #111827 !important;
-      font-size: 0.95rem !important;
-      font-weight: 700 !important;
-      background: #f9fafb;
-      border: 1px solid #f3f4f6;
-      text-decoration: none;
-      min-height: 44px;
-      cursor: pointer;
-      font-family: inherit;
-      box-sizing: border-box;
+      padding: 0.5rem !important;
+      border-radius: 8px !important;
     }
 
-    .nav-links button.nav-link-btn.danger {
-      color: #dc2626 !important;
-      background: #fef2f2 !important;
-      border-color: #fee2e2 !important;
-    }
+   .brand {
+  width: auto;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 0.75rem;
+}
 
-    .nav-links a:hover,
-    .nav-links button.nav-link-btn:hover {
-      background: #ecfdf5 !important;
-      color: #059669 !important;
-      border-color: #a7f3d0 !important;
-    }
+.topbar-actions {
+  width: 100%;
+  justify-content: flex-end;
+}
 
-    .nav-links button.nav-link-btn.danger:hover {
-      background: #fee2e2 !important;
-      color: #991b1b !important;
-    }
-
-    .brand {
-      width: auto;
-      justify-content: flex-start;
-      align-items: center;
-      gap: 0.5rem;
-      min-width: 0;
-      flex: 1;
-    }
-
-    .topbar-actions {
-      width: auto;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      flex-shrink: 0;
-    }
-
-    .refresh-btn {
-      padding: 0.45rem 0.8rem;
-      font-size: 0.8rem;
-    }
-
-    .desktop-only-action {
-      display: none !important;
-    }
+.action-button {
+  padding: .75rem 1rem;
+  font-size: .9rem;
+}
   }
 
   @media (max-width: 680px) {
     .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.75rem 0.85rem;
-      gap: 0.5rem;
+      padding: 1rem 0.8rem;
     }
 
-    .brand-copy strong {
-      font-size: 0.95rem;
-    }
-
-    .brand-copy span {
-      display: none;
+    .topbar-actions {
+      justify-content: center;
     }
 
     .admin-table-header,
@@ -858,13 +758,35 @@ svg {
       padding: 0.9rem 0.9rem;
     }
 
-    .site-footer{
-      text-align:center;
-    }
+    .brand-copy strong {
+  font-size: 1rem;
+}
 
-    .footer-links{
-      justify-content:center;
-    }
+.brand-copy span {
+  font-size: .8rem;
+}
+
+.topbar-actions {
+  width: 100%;
+  justify-content: center;
+}
+
+.action-button {
+  flex: 1;
+  min-width: 110px;
+}
+
+.mobile-menu-btn {
+  flex: 0;
+}
+
+.site-footer{
+  text-align:center;
+}
+
+.footer-links{
+  justify-content:center;
+}
   }
 
 @media (max-width: 480px) {
@@ -1203,7 +1125,6 @@ function Admin() {
   return (
     <>
       <style>{adminStyles}</style>
-      {isMenuOpen && <div className="menu-backdrop" onClick={() => setIsMenuOpen(false)} />}
       <div className="dashboard admin-page">
         <div className="page-frame">
           <header className="topbar admin-topbar">
@@ -1222,43 +1143,18 @@ function Admin() {
               <a href="#kelola-kandidat" onClick={() => setIsMenuOpen(false)}>KANDIDAT</a>
               <a href="#kelola-suara" onClick={() => setIsMenuOpen(false)}>DATA VOTE</a>
               <Link to="/admin/results" onClick={() => setIsMenuOpen(false)}>STATISTIK</Link>
-              <Link to="/" onClick={() => setIsMenuOpen(false)}>KEMBALI KE BERANDA</Link>
-              <button
-                type="button"
-                className="nav-link-btn danger"
-                onClick={() => {
-                  setIsMenuOpen(false)
-                  handleLogout()
-                }}
-              >
-                KELUAR (LOGOUT)
-              </button>
             </nav>
 
             <div className="topbar-actions">
-              <button type="button" className="action-button secondary refresh-btn" onClick={loadAdminData}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="23 4 23 10 17 10"></polyline>
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                </svg>
-                Refresh
-              </button>
-
-              <button
-                type="button"
-                className="action-button secondary desktop-only-action"
-                onClick={handleLogout}
-              >
-                KELUAR
-              </button>
-              <Link to="/" className="action-button desktop-only-action">KEMBALI</Link>
-
+              <button type="button" className="action-button secondary" onClick={loadAdminData}>REFRESH</button>
+              <button type="button" className="action-button secondary" onClick={handleLogout}>KELUAR</button>
+              <Link to="/" className="action-button">KEMBALI</Link>
               <button
                 className="mobile-menu-btn"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label="Toggle navigation"
               >
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
                   <path d={isMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 12h16M4 6h16M4 18h16"} />
                 </svg>
               </button>
