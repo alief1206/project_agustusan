@@ -1068,6 +1068,18 @@ function Admin() {
     }
   }
 
+  const handleDirectDeleteVote = async (vote) => {
+    try {
+      setVotes(prev => prev.filter(v => v.id !== vote.id))
+      await api.deleteVote(vote.id)
+      showMessage(`Suara dari "${vote.voterName}" berhasil dihapus.`)
+      loadAdminData()
+    } catch (error) {
+      showMessage(error.message, 'error')
+      loadAdminData()
+    }
+  }
+
   const openConfirmModal = (item, type = 'candidate') => {
     setItemToDelete({ ...item, deleteType: type })
     setIsConfirmModalOpen(true)
@@ -1286,7 +1298,7 @@ function Admin() {
                           </td>
                           <td>{new Date(vote.createdAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' })}</td>
                           <td>
-                            <button type="button" className="danger" onClick={() => openConfirmModal(vote, 'vote')}>
+                            <button type="button" className="danger" onClick={() => handleDirectDeleteVote(vote)}>
                               HAPUS VOTE
                             </button>
                           </td>
