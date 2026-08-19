@@ -33,7 +33,6 @@ const createVote = async (req, res) => {
     const existingVote = await prisma.vote.findFirst({
       where: {
         voterNameKey,
-        voterAddressKey,
         categoryId: candidate.categoryId,
       },
       select: { id: true },
@@ -41,7 +40,7 @@ const createVote = async (req, res) => {
 
     if (existingVote) {
       return res.status(409).json({
-        message: 'Nama dan alamat ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
+        message: 'Nama ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
       });
     }
 
@@ -89,7 +88,7 @@ const createVote = async (req, res) => {
     }
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return res.status(409).json({
-        message: 'Nama dan alamat ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
+        message: 'Nama ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
       });
     }
 

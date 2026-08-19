@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { GoogleLogin } from '@react-oauth/google'
 import BrandLogo from '../components/BrandLogo'
 import { api } from '../lib/api'
 
@@ -718,6 +717,7 @@ function Vote() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [selectedCandidate, setSelectedCandidate] = useState(null)
+  const [formData, setFormData] = useState({ voterName: '', voterAddress: '' })
 
   const loadCategories = async () => {
     try {
@@ -739,31 +739,35 @@ function Vote() {
   const handleVoteClick = (candidate) => {
     setSelectedCandidate(candidate)
     setMessage('')
+    setFormData({ voterName: '', voterAddress: '' })
     setIsModalOpen(true)
   }
 
-  const handleGoogleSuccess = async (credentialResponse) => {
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
     setIsSubmitting(true)
     setMessage('')
 
     try {
       await api.createVote({
         candidateId: selectedCandidate.id,
-        googleToken: credentialResponse.credential
+        voterName: formData.voterName,
+        voterAddress: formData.voterAddress,
       })
       setMessage(`Terima kasih! Suara Anda untuk ${selectedCandidate.name} telah berhasil dicatat.`)
       setIsModalOpen(false)
       setSelectedCandidate(null)
+      setFormData({ voterName: '', voterAddress: '' })
       await loadCategories()
     } catch (error) {
       setMessage(error.message)
     } finally {
       setIsSubmitting(false)
     }
-  }
-
-  const handleGoogleError = () => {
-    setMessage('Gagal memverifikasi dengan Google.')
   }
 
   return (
@@ -864,19 +868,38 @@ function Vote() {
               <p>Anda memilih <strong>{selectedCandidate?.name}</strong>. Lengkapi data berikut untuk memvalidasi suara Anda.</p>
             </div>
             
-            <div className="modal-form" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
-              {isSubmitting ? (
-                <p style={{ fontWeight: 'bold', color: '#10b981' }}>Mengirim suara Anda...</p>
-              ) : (
-                <GoogleLogin
-                  onSuccess={handleGoogleSuccess}
-                  onError={handleGoogleError}
-                  text="signin_with"
-                  shape="pill"
-                  theme="outline"
-                  size="large"
+            <form onSubmit={handleSubmit} className="modal-form" style={{ marginTop: '1.5rem' }}>
+              <div>
+                <label htmlFor="voterName">Nama Lengkap</label>
+                <input
+                  type="text"
+                  id="voterName"
+                  name="voterName"
+                  className="modal-input"
+                  placeholder="Masukkan nama lengkap Anda"
+                  value={formData.voterName}
+                  onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
                 />
-              )}
+              </div>
+              
+              <div>
+                <label htmlFor="voterAddress">Alamat Lengkap</label>
+                <input
+                  type="text"
+                  id="voterAddress"
+                  name="voterAddress"
+                  className="modal-input"
+                  placeholder="Contoh: RT 01 RW 02 No 15"
+                  value={formData.voterAddress}
+                  onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
+                />
+              </div>
+
+              {isSubmitting && <p style={{ fontWeight: 'bold', color: '#10b981', textAlign: 'center' }}>Mengirim suara Anda...</p>}
               
               <div className="modal-actions" style={{ width: '100%' }}>
                 <button 
@@ -887,8 +910,15 @@ function Vote() {
                 >
                   Batal
                 </button>
+                <button 
+                  type="submit" 
+                  className="btn-submit" 
+                  disabled={isSubmitting}
+                >
+                  Kirim Suara
+                </button>
               </div>
-            </div>
+            </form>
 
           </div>
         </div>
