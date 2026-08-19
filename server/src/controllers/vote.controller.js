@@ -11,24 +11,41 @@ const voteSchema = z.object({
   voterAddress: z.string().trim().min(5),
 });
 
-const createVote = async (req, res) => {
-  const data = voteSchema.parse(req.body);
-  const candidate = await prisma.candidate.findFirst({
-    where: { id: data.candidateId, status: 'ACTIVE' },
-    include: { category: true },
-  });
+const { OAuth2Client } = require('google-auth-library');
 
-  if (!candidate) {
-    return res.status(404).json({ message: 'Kandidat aktif tidak ditemukan.' });
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+const createVote = async (req, res) => {
+  const { candidateId, googleToken } = req.body;
+
+  if (!candidateId || !googleToken) {
+    return res.status(400).json({ message: 'Kandidat dan kredensial Google wajib ada.' });
   }
 
   try {
-    const voterNameKey = normalizeText(data.voterName);
-    const voterAddressKey = normalizeText(data.voterAddress);
+    const ticket = await client.verifyIdToken({
+      idToken: googleToken,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    const voterEmail = payload['email'];
+
+    if (!voterEmail) {
+      return res.status(400).json({ message: 'Tidak dapat memverifikasi email dari akun Google.' });
+    }
+
+    const candidate = await prisma.candidate.findFirst({
+      where: { id: candidateId, status: 'ACTIVE' },
+      include: { category: true },
+    });
+
+    if (!candidate) {
+      return res.status(404).json({ message: 'Kandidat aktif tidak ditemukan.' });
+    }
+
     const existingVote = await prisma.vote.findFirst({
       where: {
-        voterNameKey,
-        voterAddressKey,
+        voterEmail,
         categoryId: candidate.categoryId,
       },
       select: { id: true },
@@ -36,7 +53,7 @@ const createVote = async (req, res) => {
 
     if (existingVote) {
       return res.status(409).json({
-        message: 'Nama dan alamat ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
+        message: 'Akun Google ini sudah pernah memilih pada kategori ini. Setiap email hanya bisa memilih 1 kali per kategori.',
       });
     }
 
@@ -44,10 +61,7 @@ const createVote = async (req, res) => {
       data: {
         candidateId: candidate.id,
         categoryId: candidate.categoryId,
-        voterName: data.voterName,
-        voterNameKey,
-        voterAddress: data.voterAddress,
-        voterAddressKey,
+        voterEmail,
         ipAddress: req.ip,
         userAgent: req.get('user-agent'),
       },
@@ -61,13 +75,13 @@ const createVote = async (req, res) => {
 
     return res.status(201).json({ message: 'Suara berhasil dicatat.', data: vote });
   } catch (error) {
+    console.error('Google Auth Error:', error);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
       return res.status(409).json({
-        message: 'Nama dan alamat ini sudah pernah memilih pada kategori ini. Setiap warga hanya bisa memilih 1 kali per kategori.',
+        message: 'Akun Google ini sudah pernah memilih pada kategori ini. Setiap email hanya bisa memilih 1 kali per kategori.',
       });
     }
-
-    throw error;
+    return res.status(500).json({ message: 'Gagal memverifikasi akun Google atau menyimpan suara.' });
   }
 };
 

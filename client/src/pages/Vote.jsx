@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { GoogleLogin } from '@react-oauth/google'
 import BrandLogo from '../components/BrandLogo'
 import { api } from '../lib/api'
 
@@ -741,18 +742,14 @@ function Vote() {
     setIsModalOpen(true)
   }
 
-  const handleSubmitVote = async (e) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-
+  const handleGoogleSuccess = async (credentialResponse) => {
     setIsSubmitting(true)
     setMessage('')
 
     try {
       await api.createVote({
         candidateId: selectedCandidate.id,
-        voterName: formData.get('voterName'),
-        voterAddress: formData.get('voterAddress'),
+        googleToken: credentialResponse.credential
       })
       setMessage(`Terima kasih! Suara Anda untuk ${selectedCandidate.name} telah berhasil dicatat.`)
       setIsModalOpen(false)
@@ -763,6 +760,10 @@ function Vote() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  const handleGoogleError = () => {
+    setMessage('Gagal memverifikasi dengan Google.')
   }
 
   return (
@@ -863,40 +864,31 @@ function Vote() {
               <p>Anda memilih <strong>{selectedCandidate?.name}</strong>. Lengkapi data berikut untuk memvalidasi suara Anda.</p>
             </div>
             
-            <form className="modal-form" onSubmit={handleSubmitVote}>
-              <div>
-                <label>Nama Lengkap</label>
-                <input 
-                  type="text" 
-                  name="voterName"
-                  className="modal-input" 
-                  placeholder="Masukkan nama lengkap Anda" 
-                  required 
+            <div className="modal-form" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
+              {isSubmitting ? (
+                <p style={{ fontWeight: 'bold', color: '#10b981' }}>Mengirim suara Anda...</p>
+              ) : (
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={handleGoogleError}
+                  text="signin_with"
+                  shape="pill"
+                  theme="outline"
+                  size="large"
                 />
-              </div>
-              <div>
-                <label>Alamat Lengkap</label>
-                <textarea 
-                  name="voterAddress"
-                  className="modal-input" 
-                  rows="3" 
-                  placeholder="Contoh: Jl. Welaran, No. 15, RT 01/RW 01" 
-                  required 
-                />
-              </div>
-              <div className="modal-actions">
+              )}
+              
+              <div className="modal-actions" style={{ width: '100%' }}>
                 <button 
                   type="button" 
                   className="btn-cancel" 
                   onClick={() => setIsModalOpen(false)}
+                  disabled={isSubmitting}
                 >
                   Batal
                 </button>
-                <button type="submit" className="btn-submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Mengirim...' : 'Kirim Suara'}
-                </button>
               </div>
-            </form>
+            </div>
 
           </div>
         </div>
