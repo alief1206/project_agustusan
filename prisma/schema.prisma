@@ -49,14 +49,17 @@ model Vote {
   id              String    @id @default(cuid())
   candidateId     String
   categoryId      String
-  voterEmail      String    @db.VarChar(191)
+  voterName       String
+  voterNameKey    String    @db.VarChar(191)
+  voterAddress    String
+  voterAddressKey String    @db.VarChar(191)
   ipAddress       String?
   userAgent       String?
   candidate       Candidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
   category        Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt       DateTime  @default(now())
 
-  @@unique([voterEmail, categoryId])
+  @@unique([voterNameKey, voterAddressKey, categoryId])
   @@index([candidateId])
   @@index([categoryId])
 }
