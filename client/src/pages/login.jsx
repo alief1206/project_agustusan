@@ -232,13 +232,7 @@ function Login() {
                 </button>
               </form>
 
-              <div className="social-login">
-                <p>Atau masuk dengan:</p>
-                <div className="social-icons">
-                  <button className="social-btn" aria-label="Login with Google">G</button>
-                  <button className="social-btn" aria-label="Login with Facebook">f</button>
-                </div>
-              </div>
+
             </section>
           </main>
         </div>
