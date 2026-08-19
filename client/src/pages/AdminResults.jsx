@@ -412,8 +412,7 @@ function ResultRow({ item, rank }) {
         <span>{item.name}</span>
       </div>
       <div className="row-meta">
-        <span>{item.votes.toLocaleString('id-ID')} votes</span>
-        <span>({item.percent}%)</span>
+        <span>{item.percent}%</span>
       </div>
       <div className="progress-bar">
         <div className="progress-fill" style={{ width: `${item.percent}%` }} />
@@ -492,7 +491,6 @@ function AdminResults() {
             <section key={category.id} className="result-card">
               <div className="result-card-header">
                 <span>{category.name}</span>
-                <span>{(category.totalVotes ?? 0).toLocaleString('id-ID')} Suara</span>
               </div>
               <div className="result-list">
                 {(category.candidates || []).map((item, index) => (
